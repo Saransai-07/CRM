@@ -1,35 +1,64 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
+import { View, Text } from 'react-native'
+import React from 'react'
+import { Tabs } from 'expo-router'
+import {FontAwesome, Fontisto, Ionicons, } from '@expo/vector-icons'
 
-import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
 
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
+const Tabslayout = () => {
 
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-        tabBarButton: HapticTab,
-      }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="explore"
-        options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
-        }}
-      />
+    <Tabs screenOptions={{
+        tabBarStyle: { backgroundColor: '#000000', borderTopColor: 'rgba(255,255,255,0.1)' },
+        tabBarActiveTintColor: '#44eb2e',
+        tabBarInactiveTintColor: 'rgba(235,235,245,0.6)',
+        headerStyle: { backgroundColor: '#000000' },
+        headerTintColor: '#FFFFFF',
+    }}>
+        <Tabs.Screen
+            name='DashBoard' 
+            options={{
+                headerShown : false,
+                title:'Dashboard',
+                tabBarIcon : ({ color }) => 
+                    <Ionicons name="home" color={color} size={24} />
+            }}
+        />
+        <Tabs.Screen
+            name='Reports' 
+            options={{
+                title:'Reports',
+                tabBarIcon : ({ color }) => 
+                    <Ionicons name="documents" color={color} size={24} />
+            }}
+        />
+        <Tabs.Screen
+            name='Sales' 
+            options={{
+                title:'Sales',
+                tabBarIcon : ({ color }) => 
+                    <Fontisto name="shopping-sale" color={color} size={24} />
+            }}
+        />
+        <Tabs.Screen
+            name='settings' 
+            options={{
+                title:'Settings',
+                tabBarIcon : ({ color }) => 
+                    <Ionicons name="settings" color={color} size={24} />
+            }}
+        />
+        <Tabs.Screen 
+            name='UserData'
+            options={{
+                title : "Profile",
+                headerShown : false,
+                tabBarIcon : ({color}) =>
+                    <FontAwesome name="user" color={color} size={24} />
+            }}
+        />
+
     </Tabs>
-  );
+)
 }
+
+export default Tabslayout
