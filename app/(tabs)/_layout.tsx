@@ -24,9 +24,9 @@ const Tabslayout = () => {
             }}
         />
         <Tabs.Screen
-            name='Reports' 
+            name='CVR' 
             options={{
-                title:'Reports',
+                title:'Inputs & CVR ',
                 tabBarIcon : ({ color }) => 
                     <Ionicons name="documents" color={color} size={24} />
             }}

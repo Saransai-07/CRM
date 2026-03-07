@@ -52,13 +52,13 @@ export default function AttendanceSummaryScreen() {
       />
 
       {/* Activity Card */}
-      {/* <AttendanceActivityCard
+      <AttendanceActivityCard
         total_agents={40}
         no_of_present_agents={32}
         no_of_absent_agents={8}
         date={MOCK_WEEK[selectedDay].date}
         is_admin={true}
-      /> */}
+      />
 
       {/* Ring */}
         <View style={styles.ringWrapper}>

@@ -8,7 +8,7 @@ const settings = () => {
     <View>
       <Text>settings</Text>
       <DirectCallButton
-        phoneNumber='9248883361'
+        phoneNumber='7013567316'
       />
     </View>
   )

@@ -1,4 +1,4 @@
-import AgentCard from "@/src/components/AgentCard";
+import AgentCard from "@/src/components/CVR/AgentCard";
 import HeaderSearch from "@/src/components/ListHeader";
 import ListHeader from "@/src/components/ListHeader";
 import { Pagination } from "@/src/components/Pagination";
@@ -10,58 +10,68 @@ import { Theme, useThemedStyles } from "@/src/theme";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, FlatList, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
 
 export default function AgentListScreen() {
   const { logout, authState, BASE_URL } = useAuth();
-    const [data, setData] = useState<AgentReport[]>([]);
+  const [data, setData] = useState<AgentReport[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState<string>('')
   const [accessToken, setAccessToken] = useState<string | null>(null);
-  
+
+  const [refreshing, setRefreshing] = useState(false);
+
+
   const styles = useThemedStyles(createStyles);
 
 
   const options = React.useMemo(() => ({
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
-      },
-    }), [accessToken]);
-  
-    useEffect(() => {
-      const loadToken = async () => {
-        const token = await getToken("ACCESS_TOKEN");
-        if (!token) {
-          await logout();
-          router.replace("/(auth)/Login");
-          return;
-        }
-        setAccessToken(token);
-      };
-      loadToken();
-    }, []); 
-  
-    useEffect(() => {
-      if (!accessToken) return;
-      const loadSales = async () => {
-        try {
-          setLoading(true);
-            await Promise.all([
-            fetchData(page, search),
-          ]);
-        } catch (err) {
-          console.error(err);
-        } finally {
-          setLoading(false);
-        }
-      };
-      loadSales();
-    }, [accessToken,page, search]);
-  
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    },
+  }), [accessToken]);
+
+  useEffect(() => {
+    const loadToken = async () => {
+      const token = await getToken("ACCESS_TOKEN");
+      if (!token) {
+        await logout();
+        router.replace("/(auth)/Login");
+        return;
+      }
+      setAccessToken(token);
+    };
+    loadToken();
+  }, []);
+
+  useEffect(() => {
+    if (!accessToken) return;
+    const loadSales = async () => {
+      try {
+        setLoading(true);
+        await Promise.all([
+          fetchData(page, search),
+        ]);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadSales();
+  }, [accessToken, page, search]);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    setPage(1)
+    await fetchData(page, search);
+    setRefreshing(false);
+  };
+
 
 
   const fetchData = async (pageNumber: number, search: string) => {
@@ -76,7 +86,7 @@ export default function AgentListScreen() {
     } finally {
     }
   };
-  
+
   const handleNext = () => {
     if (page < totalPages) {
       setPage(prev => prev + 1)
@@ -90,25 +100,30 @@ export default function AgentListScreen() {
   };
 
 
+
+
   return (
     <View style={styles.container}>
-      
+
       <HeaderSearch
-        title="Agents"
+        title="CVR"
         placeholder="Search agents..."
-        onSearchChange={(searchText) => {setSearch(searchText),setPage(1)}}
+        onSearchChange={(searchText) => { setSearch(searchText), setPage(1) }}
       />
 
-      {loading ? (
-        <ActivityIndicator size='large'/>
+
+      {loading && !refreshing ? (
+        <ActivityIndicator size='large' />
       ) : (
         <>
           <FlatList
             data={data}
             keyExtractor={(item) => item.id.toString()}
-            renderItem={({ item }) => <AgentCard item={item} />}
+            renderItem={({ item }) => <AgentCard key={item.id} item={item} />}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ paddingBottom: 20 }}
+            refreshing={refreshing}
+            onRefresh={onRefresh}
           />
           <Pagination
             currentPage={page}
@@ -128,22 +143,22 @@ export default function AgentListScreen() {
 const createStyles = (t: Theme) =>
   StyleSheet.create({
     container: {
-      flex : 1,
+      flex: 1,
       backgroundColor: t.colors.surface,
       paddingHorizontal: 16,
     },
-     header: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        paddingVertical: 14,
+    header: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      paddingVertical: 14,
     },
     headerTitle: {
-        fontSize: 28,
-        fontWeight: "700",
-        color: "#fff",
+      fontSize: 28,
+      fontWeight: "700",
+      color: "#fff",
     },
-});
+  });
 
 
 

@@ -9,7 +9,7 @@ import {
 } from "react-native";
 
 type HeaderSearchProps = {
-  title?: string;
+  title?: string | string[];
   placeholder?: string;
   onSearchChange?: (text: string) => void;
   showSearch?: boolean;

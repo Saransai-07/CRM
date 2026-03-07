@@ -27,7 +27,7 @@ const DashBoard = () => {
   const theme = useTheme();
   const styles = useThemedStyles(createStyles);
 
-  const displayName =  "Account";
+  // const displayName =  "Account";
 
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
@@ -251,11 +251,11 @@ const DashBoard = () => {
               color={theme.colors.textSecondary}
             />
           </View>
-          {displayName !== "Account" && (
+          {/* {displayName !== "Account" && (
             <Text style={styles.profileLabel} numberOfLines={1}>
               {displayName}
             </Text>
-          )}
+          )} */}
         </TouchableOpacity>
       </View>
 {/*=========================== DashBoard ================================================= */}

@@ -44,6 +44,19 @@ export interface AgentReport {
   cvr: string;
 }
 
+export interface AgentReportsInterface {
+  branch_id: string;
+  name: string;
+  students_connected: number;
+  no_of_interested: number;
+  no_of_call_backs: number;
+  no_of_not_interested: number;
+  students_sales_count: number;
+  cvr_count: number;
+  cvr_percentage: number;
+  cvr: string;
+}
+
 // types/agent.ts
 
 export interface Agent {

@@ -5,13 +5,16 @@ import { Stack } from "expo-router";
 // import RootNavigator from "./(auth)/RootNavigator";
 
 export default function RootLayout() {
-  return(
+  return (
     <AuthProvider>
       <ThemeProvider>
-        <Stack>
-          <Stack.Screen name="(auth)" options={{headerShown : false}}/>
-          <Stack.Screen name='(tabs)' options={{headerShown : false,}}/>
-          <Stack.Screen name="Screens/AttendanceSummaryScreen" options={{headerShown : false, presentation: 'modal', }}/>
+        <Stack screenOptions={{
+          headerStyle: { backgroundColor: '#000000' },
+          headerTintColor: '#FFFFFF',
+        }}>
+          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+          <Stack.Screen name='(tabs)' options={{ headerShown: false, }} />
+          <Stack.Screen name="Screens/AttendanceSummaryScreen" options={{ headerShown: false, presentation: 'modal', }} />
         </Stack>
       </ThemeProvider>
     </AuthProvider>
