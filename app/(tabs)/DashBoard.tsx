@@ -70,7 +70,6 @@ const DashBoard = () => {
   const loadDashboard = async () => {
     try {
       setLoading(true);
-
       await Promise.all([
         fetchagentAttendance(),
         fetchCardsData(),
@@ -78,7 +77,6 @@ const DashBoard = () => {
         fetchWeeklyConverstions(),
         fetchOverallTopPerformers(),
         fetchTodayTopPerformers(),
-        
       ]);
     } catch (err) {
       console.error(err);

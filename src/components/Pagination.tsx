@@ -150,6 +150,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginVertical: 10,
+    
   },
 
   neonBorder: {

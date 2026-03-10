@@ -17,27 +17,27 @@ const AgentCard = ({ item }: { item: AgentReport }) => {
       <TouchableOpacity>
         <View style={styles.card}>
           <View style={styles.cardTop}>
-            <Text style={styles.agentName}>{item.username}</Text>
+            <Text style={styles.agentName}>👨‍💼 {item.username}</Text>
             <Ionicons name="chevron-forward" size={20} color="#8E8E93" />
           </View>
           <View style={styles.divider} />
           <View style={styles.row}>
-            <Text style={styles.label}>Branches</Text>
+            <Text style={styles.label}>🏫 Branches</Text>
             <Text style={styles.value}>{item.no_of_branches}</Text>
           </View>
 
           <View style={styles.row}>
-            <Text style={styles.label}>Unique Student Touch</Text>
+            <Text style={styles.label}>📞 Unique Student Touch</Text>
             <Text style={styles.value}>{item.students_connected}</Text>
           </View>
 
           <View style={styles.row}>
-            <Text style={styles.label}>Sales</Text>
+            <Text style={styles.label}>🎯 Sales</Text>
             <Text style={styles.value}>{item.students_sales_count}</Text>
           </View>
 
           <View style={styles.row}>
-            <Text style={styles.label}>CVR</Text>
+            <Text style={styles.label}>📈 CVR</Text>
             <Text style={styles.value}>{item.cvr}</Text>
           </View>
         </View>

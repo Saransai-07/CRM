@@ -7,8 +7,8 @@ export interface AttendanceResponse {
   is_admin: boolean;
 }
 
-  
-  export interface  MetricCardProps{
+
+export interface MetricCardProps {
   id: number;
   heading: string;
   heading_value: string;
@@ -30,6 +30,15 @@ export interface TopPerformer {
   agent_name: string;
   sales_count: number;
   agent_profile: string;
+}
+
+export interface CommomApiInterface {
+  total_count: number;
+  total_pages: number;
+  current_page_number: number;
+  next_page: string | null;
+  previous_page: string | null;
+  results: any[];
 }
 
 export interface AgentReport {
@@ -57,8 +66,6 @@ export interface AgentReportsInterface {
   cvr: string;
 }
 
-// types/agent.ts
-
 export interface Agent {
   id: number;
   username: string;
@@ -73,11 +80,43 @@ export interface Agent {
   cvr: string;
 }
 
-export interface AgentResponse {
-  total_count: number;
-  total_pages: number;
-  current_page_number: number;
-  next_page: string | null;
-  previous_page: string | null;
-  results: Agent[];
+export interface AgentInputsInterface {
+  id: number;
+  username: string;
+  no_of_branches: number;
+  no_of_calls: number;
+  no_of_call_connected: number;
+  unique_lead_touch: number;
+  unique_lead_touch_connected: number;
+  less_than_30_secs: number;
+  less_than_1_min: number;
+  less_than_1_min_30_secs: number;
+  greater_than_1_min_30_secs: number;
 }
+
+export interface BranchCVRInterface {
+  branch_id: number;
+  name: string;
+  zone: number;
+  zone_name: string;
+  category: string;
+  ist: string | null;
+  YLP_student_count: number;
+  unique_lead_connected: number;
+  branch_renewal_sales: number;
+  agent_renewal_sales: number;
+  lead_touch_per: string;
+  total_target: number;
+  branch_new_sales: number;
+  branch_total_sales: number;
+  branch_new_sales_cvr_per: string;
+  branch_current_sales_cvr_per: string;
+  agent_new_sales: number;
+  agent_total_sales: number;
+  agent_new_sales_cvr_per: string
+  agent_current_sales_cvr_per: string;
+  expected_cvr_per: string;
+  difference_in_cvr_per: string;
+}
+
+

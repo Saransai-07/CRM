@@ -13,8 +13,10 @@ export default function RootLayout() {
           headerTintColor: '#FFFFFF',
         }}>
           <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-          <Stack.Screen name='(tabs)' options={{ headerShown: false, }} />
+          <Stack.Screen name='(tabs)' options={{ headerShown: false, headerTitle : 'Home' }} />
           <Stack.Screen name="Screens/AttendanceSummaryScreen" options={{ headerShown: false, presentation: 'modal', }} />
+          <Stack.Screen name="AgentReports/[id]" options={{ headerTitle : 'Agent Reports' }} />
+          <Stack.Screen name="BranchCVR/[id]" options={{ headerTitle : 'Branch Reports' }} />
         </Stack>
       </ThemeProvider>
     </AuthProvider>

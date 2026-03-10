@@ -1,23 +1,21 @@
-import { View, Text, StyleSheet, ActivityIndicator, FlatList, ScrollView, RefreshControl } from 'react-native'
+import { View, Text, ActivityIndicator, StyleSheet, FlatList } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import { useLocalSearchParams, useRouter } from 'expo-router'
+import { getToken } from '@/src/lib/secureStorage';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Theme, useThemedStyles } from '@/src/theme';
+import { useAuth } from '@/src/context/AuthContext';
+import { BranchCVRInterface } from '@/src/Interface/InterfaceData';
 import { Pagination } from '@/src/components/Pagination';
 import HeaderSearch from '@/src/components/ListHeader';
-import { useAuth } from '@/src/context/AuthContext';
-import { AgentReportsInterface } from '@/src/Interface/InterfaceData';
-import { getToken } from '@/src/lib/secureStorage';
-import AgentCard from '@/src/components/CVR/AgentCard';
-import AgentReports from '@/src/components/CVR/AgentReports';
+import BranchCard from '@/src/components/ConverstionCard';
 
-const WizklubAgentsReports = () => {
+const BranchCVRScreen = () => {
+
   const { id, name } = useLocalSearchParams();
   const { logout, authState, BASE_URL } = useAuth();
-  const [data, setData] = useState<AgentReportsInterface[]>([]);
+  const [data, setData] = useState<BranchCVRInterface[]>([]);
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [search, setSearch] = useState<string>('')
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const router = useRouter();
   const styles = useThemedStyles(createStyles);
@@ -52,7 +50,7 @@ const WizklubAgentsReports = () => {
       try {
         setLoading(true);
         await Promise.all([
-          fetchData(page, search),
+          fetchData(),
         ]);
       } catch (err) {
         console.error(err);
@@ -61,17 +59,13 @@ const WizklubAgentsReports = () => {
       }
     };
     loadSales();
-  }, [accessToken, page, search, id]);
+  }, [accessToken, page,  id]);
 
-
-
-  const fetchData = async (pageNumber: number, search: string) => {
+  const fetchData = async () => {
     try {
-      const res = await fetch(`${BASE_URL}/wizklub/wizklub_agent_branch_wise_reports/?agent=${id}&page=${pageNumber}&search=${search}`, options);
+      const res = await fetch(`${BASE_URL}/wizklubcvr/branch_cvr/${id}/`, options);
       const json = await res.json();
-      setData(json.results);
-      setTotalPages(json.total_pages);
-      setPage(json.current_page_number);
+      setData([json]);
     } catch (error) {
       console.log("Error:", error);
     } finally {
@@ -79,35 +73,18 @@ const WizklubAgentsReports = () => {
   };
 
 
-  const handleNext = () => {
-    if (page < totalPages) {
-      setPage(prev => prev + 1)
-    }
-  };
-
-  const handlePrev = () => {
-    if (page > 1) {
-      setPage(prev => prev - 1)
-    }
-  };
 
   const onRefresh = async () => {
     setRefreshing(true);
     setPage(1)
-    await fetchData(page, search);
+    await fetchData();
     setRefreshing(false);
   };
-
-
 
   return (
 
     <View style={styles.container}>
-      <HeaderSearch
-        title={name}
-        placeholder="Search"
-        onSearchChange={(searchText) => { setSearch(searchText), setPage(1) }}
-      />
+
       {loading && !refreshing ? (
         <ActivityIndicator size='large' />
       ) : (
@@ -115,7 +92,7 @@ const WizklubAgentsReports = () => {
           <FlatList
             data={data}
             keyExtractor={(item) => item.branch_id.toString()}
-            renderItem={({ item }) => <AgentReports key={item.branch_id} item={item} />}
+            renderItem={({ item }) => <BranchCard item={item} />}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ paddingBottom: 20 }}
             refreshing={refreshing}
@@ -125,34 +102,24 @@ const WizklubAgentsReports = () => {
             )}
           />
           <View style={styles.pagiantion}>
-            {data.length > 0 ? (
-              <Pagination
-                currentPage={page}
-                totalPages={totalPages}
-                onNext={handleNext}
-                onPrev={handlePrev}
-              />
 
-            ) : (
-              <>
-              </>
-            )}
           </View>
         </>
       )}
     </View>
 
   )
-};
+}
 
-export default WizklubAgentsReports
+export default BranchCVRScreen
+
 
 const createStyles = (t: Theme) =>
   StyleSheet.create({
     container: {
       flex: 1,
       backgroundColor: t.colors.surface,
-      paddingHorizontal: 16,
+      paddingHorizontal: 0,
     },
     header: {
       flexDirection: "row",
@@ -165,14 +132,14 @@ const createStyles = (t: Theme) =>
       fontWeight: "700",
       color: "#fff",
     },
-    emptycomponent :{
-      flex : 1,
-      fontSize : 20,
-      color : '#fff'
+    emptycomponent: {
+      flex: 1,
+      fontSize: 20,
+      color: '#fff'
     },
 
-    pagiantion : {
-      marginBottom : 10
+    pagiantion: {
+      marginBottom: 10
     },
 
   });
