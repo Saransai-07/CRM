@@ -17,6 +17,7 @@ export default function RootLayout() {
           <Stack.Screen name="Screens/AttendanceSummaryScreen" options={{ headerShown: false, presentation: 'modal', }} />
           <Stack.Screen name="AgentReports/[id]" options={{ headerTitle : 'Agent Reports' }} />
           <Stack.Screen name="BranchCVR/[id]" options={{ headerTitle : 'Branch Reports' }} />
+          <Stack.Screen name="Screens/ReportsScreen/AgentwiseCallSummary/[id]" options={{ headerTitle : 'Agent Call Logs' }} />
         </Stack>
       </ThemeProvider>
     </AuthProvider>

@@ -119,4 +119,17 @@ export interface BranchCVRInterface {
   difference_in_cvr_per: string;
 }
 
+export interface AgentCallSummaryInterface {
 
+  id: number;
+  username: string;
+  total_calls: number;
+  total_duration: string
+  total_answered_calls_by_agent: number;
+  total_answered_calls_by_parent:number;
+  total_missed_calls_by_agent: number;
+  total_missed_calls_by_parent: number;
+  last_call_date: number| string | null;
+  unique_lead_touch: number;  
+
+}

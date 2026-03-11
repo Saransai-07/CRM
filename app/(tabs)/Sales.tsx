@@ -1,6 +1,9 @@
 // screens/AgentReportScreen.tsx
 
 import BranchCard from "@/src/components/ConverstionCard";
+import DateRangeModal from "@/src/components/DoubleDatePicker";
+import DateRangeCalendar from "@/src/components/DoubleDatePicker";
+import DateRangePicker from "@/src/components/DoubleDatePicker";
 import { useAuth } from "@/src/context/AuthContext";
 import { Agent, CommomApiInterface } from "@/src/Interface/InterfaceData";
 import { getToken } from "@/src/lib/secureStorage";
@@ -15,7 +18,23 @@ export default function AgentReportScreen() {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
   const [accessToken, setAccessToken] = useState<string | null>(null);
-  const [search, setSearch] = useState('')
+  const [search, setSearch] = useState('');
+  const [open, setOpen] = useState(true);
+
+  const today = new Date();
+
+  const [startDate, setStartDate] = useState(today);
+  const [endDate, setEndDate] = useState(today);
+
+  const handleDateChange = (start: Date, end: Date) => {
+    setStartDate(start);
+    setEndDate(end);
+
+    // call API here
+    console.log("Start:", start);
+    console.log("End:", end);
+  };
+
 
 
   const options = React.useMemo(() => ({
@@ -64,7 +83,7 @@ export default function AgentReportScreen() {
   const fetchData = async (pageNumber: number, search: string) => {
     try {
       setLoading(true);
-      const res = await fetch(`${BASE_URL}/wizklub/wizklub_agent_reports/?page=${pageNumber}&search=${search}`, options);
+      const res = await fetch(`${BASE_URL}/wizklub/wizklub_agent_reports/?page=${pageNumber}&search=${search}&start_date=&end_date=`, options);
       const json: CommomApiInterface = await res.json();
       setData(json.results);
       setTotalPages(json.total_pages);
@@ -89,46 +108,73 @@ export default function AgentReportScreen() {
     }
   };
 
-  const data1 = [
+  // const data1 = [
 
-    {
-      branch_id: 18,
-      name: "ADDANKI",
-      zone_name: "Ongole",
-      category: "A",
-      zone: 18,
-      lead_touch_per: "40%",
-      branch_new_sales_cvr_per: "32%",
-      agent_new_sales_cvr_per: "31%",
-      agent_new_sales: 12,
-      total_target: 20,
-      unique_lead_connected: 10,
-      YLP_student_count: 30,
-      ist: null,
-      branch_renewal_sales: 3,
-      agent_renewal_sales: 2,
-      branch_new_sales: 3,
-      branch_total_sales: 5,
-      branch_current_sales_cvr_per: '15%',
-      agent_total_sales: 10,
-      agent_current_sales_cvr_per : "16%",
-      expected_cvr_per: "18%",
-      difference_in_cvr_per: '30%',
-    },
+  //   {
+  //     branch_id: 18,
+  //     name: "ADDANKI",
+  //     zone_name: "Ongole",
+  //     category: "A",
+  //     zone: 18,
+  //     lead_touch_per: "40%",
+  //     branch_new_sales_cvr_per: "32%",
+  //     agent_new_sales_cvr_per: "31%",
+  //     agent_new_sales: 12,
+  //     total_target: 20,
+  //     unique_lead_connected: 10,
+  //     YLP_student_count: 30,
+  //     ist: null,
+  //     branch_renewal_sales: 3,
+  //     agent_renewal_sales: 2,
+  //     branch_new_sales: 3,
+  //     branch_total_sales: 5,
+  //     branch_current_sales_cvr_per: '15%',
+  //     agent_total_sales: 10,
+  //     agent_current_sales_cvr_per : "16%",
+  //     expected_cvr_per: "18%",
+  //     difference_in_cvr_per: '30%',
+  //   },
 
-  ];
+  // ];
+  const handleSave = (start: string, end: string) => {
+    console.log("Start:", start);
+    console.log("End:", end);
 
+    // call API
+  };
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#000000" }}>
+    <View style={{ flex: 1, backgroundColor: "#6e6a6a" }}>
 
-      <FlatList
-        data={data1}
-        keyExtractor={(item) => item.branch_id.toString()}
-        renderItem={({ item }) => (
-          <BranchCard item={item} />
-        )}
+      {/* <DateRangePicker
+        startDate={startDate}
+        endDate={endDate}
+        onChange={handleDateChange}
+        /> */}
+      {/* <DateRangeModal
+        visible={open}
+        onClose={() => setOpen(true)}
+        onApply={(start, end) => {
+          console.log(start, end);
+        }}
+      /> */}
+
+      <DateRangeModal
+        visible={open}
+        onClose={() => setOpen(true)}
+        onApply={(start, end) => {
+          console.log("Start:", start);
+          console.log("End:", end);
+        }}
       />
+
+      {/* <FlatList
+        data={data}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={({ item }) => (
+          // <BranchCard item={item} />
+        )}
+      /> */}
 
     </View>
   );
@@ -138,6 +184,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 15,
-    backgroundColor: "#141414",
+    backgroundColor: "#7a7272",
   },
 });
