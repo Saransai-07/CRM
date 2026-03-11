@@ -4,12 +4,25 @@ import { Link } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
 import { AgentCallSummaryInterface } from '@/src/Interface/InterfaceData'
 
-const AgentCallSummary = ({item}: {item : AgentCallSummaryInterface}) => {
+const AgentCallSummary = ({
+  item,
+  startDate,
+  endDate,
+}: {
+  item: AgentCallSummaryInterface;
+  startDate: string | null;
+  endDate: string | null;
+}) => {
   return (
     <Link
       href={{
         pathname: '/Screens/ReportsScreen/AgentwiseCallSummary/[id]',
-        params: { id: item.id, name: item.username },
+        params: {
+          id: item.id,
+          name: item.username,
+          startDate: startDate ?? "",
+          endDate: endDate ?? "",
+        },
       }}
       asChild
     >

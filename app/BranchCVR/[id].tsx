@@ -46,29 +46,24 @@ const BranchCVRScreen = () => {
 
   useEffect(() => {
     if (!accessToken) return;
-    const loadSales = async () => {
-      try {
-        setLoading(true);
-        await Promise.all([
-          fetchData(),
-        ]);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadSales();
+    fetchData()
   }, [accessToken, page,  id]);
 
   const fetchData = async () => {
     try {
+      setLoading(true)
       const res = await fetch(`${BASE_URL}/wizklubcvr/branch_cvr/${id}/`, options);
       const json = await res.json();
+      if (!res.ok) {
+        setData([]);
+        return;
+      }
       setData([json]);
     } catch (error) {
       console.log("Error:", error);
+      setData([]);
     } finally {
+      setLoading(false)
     }
   };
 
@@ -91,14 +86,14 @@ const BranchCVRScreen = () => {
         <>
           <FlatList
             data={data}
-            keyExtractor={(item) => item.branch_id.toString()}
+            keyExtractor={(item, index) => `${item.branch_id}-${index}`}
             renderItem={({ item }) => <BranchCard item={item} />}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ paddingBottom: 20 }}
             refreshing={refreshing}
             onRefresh={onRefresh}
             ListEmptyComponent={() => (
-              <Text style={styles.emptycomponent}> ❎ No Data Found</Text>
+              <Text style={styles.emptycomponent}> ❎ No Branch Details Found </Text>
             )}
           />
           <View style={styles.pagiantion}>

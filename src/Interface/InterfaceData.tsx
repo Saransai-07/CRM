@@ -126,10 +126,70 @@ export interface AgentCallSummaryInterface {
   total_calls: number;
   total_duration: string
   total_answered_calls_by_agent: number;
-  total_answered_calls_by_parent:number;
+  total_answered_calls_by_parent: number;
   total_missed_calls_by_agent: number;
   total_missed_calls_by_parent: number;
-  last_call_date: number| string | null;
-  unique_lead_touch: number;  
+  last_call_date: number | string | null;
+  unique_lead_touch: number;
+}
+
+export interface AgentWiseCallLogInterface {
+  student: number;
+  student_name: string;
+  student_scs: string;
+  agent_name: string;
+  call_start_time_: string;
+  call_end_time_: string;
+  branch_name: string;
+  call_duration_hms: string;
+  conversation_duration_hms: string;
+  caller_status: string;
+  destination_status: string;
+  call_status: string;
+  aws_call_recording_file: any |null,
+  zone_name: string;
+  state_name: string;
+}
+
+export interface SalesReportInterface {
+  wizklub_ticket_sales_id: number;
+  name: string;
+  SCS_Number: string;
+  branch_name: string;
+  student_class_name: string;
+  student_id: string;
+  saledate: string;
+  state_name: string;
+  zone_name: string;
+  orientation_name: string;
+  previous_orientation_name: string;
+  is_last_year_paid: boolean;
+  admission_status: string;
+  final_agent: string | null;
+  on_call: string;
+  student_tag_names: string;
+  sale_date: string;
+  created_at: string;
+  is_active: boolean;
+  is_sale_by_call: boolean;
+  is_sale_by_on_call: boolean;
+  is_trainer_sale: boolean;
+  is_ticket_sale: boolean;
+  sale_amount: number;
+
+  student: number;
+  state: number;
+  zone: number;
+  branch: number;
+  orientation: number;
+  student_class: number;
+  wizklub_ticket: number | null;
+  academic_year: number;
+
+  agent: number | null;
+  last_call_by_agent: number | null;
+  on_call_agent: number | null;
+  sale_by_trainer: number | null;
+  last_ticket_updated_user: number | null;
 
 }

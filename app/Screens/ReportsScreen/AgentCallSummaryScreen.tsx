@@ -8,7 +8,6 @@ import { AgentCallSummaryInterface } from '@/src/Interface/InterfaceData';
 import { Pagination } from '@/src/components/Pagination';
 import HeaderSearch from '@/src/components/ListHeader';
 import AgentCallSummary from '@/src/components/Reports/AgentCallSummary';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import DateRangeModal from '@/src/components/DoubleDatePicker';
 
 const AgentCallSummaryScreen = () => {
@@ -79,7 +78,6 @@ const AgentCallSummaryScreen = () => {
       const res = await fetch(`${BASE_URL}/call/agent_wise_wizklub_call_analytics/?page=${pageNumber}&search=${search}&start_date=${startDate ?? ""}&end_date=${endDate ?? ""}`, options);
       const json = await res.json();
       setData(json.results);
-      console.log(json)
       setTotalPages(json.total_pages);
       setPage(json.current_page_number);
     } catch (error) {
@@ -99,8 +97,6 @@ const AgentCallSummaryScreen = () => {
       setPage(prev => prev - 1)
     }
   };
-
-
 
   return (
     <View style={styles.container}>
@@ -132,8 +128,10 @@ const AgentCallSummaryScreen = () => {
         <>
           <FlatList
             data={data}
-            keyExtractor={(item) => item.id.toString()}
-            renderItem={({ item }) => <AgentCallSummary item={item} />}
+            keyExtractor={(item, index) => `${item.id}-${index}`}
+            renderItem={({ item }) => (
+              <AgentCallSummary item={item} startDate={startDate} endDate={endDate} />
+            )}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ paddingBottom: 20 }}
             refreshing={refreshing}

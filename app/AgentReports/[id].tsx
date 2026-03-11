@@ -48,33 +48,23 @@ const WizklubAgentsReports = () => {
 
   useEffect(() => {
     if (!accessToken) return;
-    const loadSales = async () => {
-      try {
-        setLoading(true);
-        await Promise.all([
-          fetchData(page, search),
-        ]);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadSales();
+    fetchData(page, search)
   }, [accessToken, page, search, id]);
 
 
 
   const fetchData = async (pageNumber: number, search: string) => {
     try {
+      setLoading(true) 
       const res = await fetch(`${BASE_URL}/wizklub/wizklub_agent_branch_wise_reports/?agent=${id}&page=${pageNumber}&search=${search}`, options);
       const json = await res.json();
-      setData(json.results);
+      setData(json.results || "");
       setTotalPages(json.total_pages);
       setPage(json.current_page_number);
     } catch (error) {
       console.log("Error:", error);
     } finally {
+      setLoading(false);
     }
   };
 

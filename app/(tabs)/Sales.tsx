@@ -19,7 +19,7 @@ export default function AgentReportScreen() {
   const [loading, setLoading] = useState(false);
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [search, setSearch] = useState('');
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
 
   const today = new Date();
 

@@ -1,10 +1,12 @@
+import { Ionicons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import {
   Modal,
-  View,
+  StyleSheet,
   Text,
   TouchableOpacity,
-  StyleSheet,
+  TouchableWithoutFeedback,
+  View,
 } from "react-native";
 import { Calendar } from "react-native-calendars";
 
@@ -140,6 +142,7 @@ const DateRangeModal = ({ visible, onClose, onApply }: Props) => {
     setStartDate(null);
     setEndDate(null);
     setActiveFilter("");
+    onApply(null, null);
   };
 
   const FilterButton = ({ label, value }: any) => (
@@ -162,53 +165,75 @@ const DateRangeModal = ({ visible, onClose, onApply }: Props) => {
   );
 
   return (
-    <Modal visible={visible} transparent animationType="slide">
-      <View style={styles.overlay}>
-        <View style={styles.container}>
+    <Modal
+      visible={visible}
+      transparent
+      animationType="slide"
+      onRequestClose={onClose}
+    >
+      <TouchableWithoutFeedback onPress={onClose}>
+        <View style={styles.overlay}>
+          <TouchableWithoutFeedback>
+            <View style={styles.container}>
+              <View style={styles.header}>
+                <Text style={styles.title}>Select date range</Text>
+                <TouchableOpacity
+                  onPress={onClose}
+                  style={styles.closeButton}
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                >
+                  <Text style={styles.closeText}>
+                    <Ionicons name="close-circle" color="#ffffff" size={24} />
+                  </Text>
+                </TouchableOpacity>
+              </View>
 
-          <View style={styles.filterRow}>
-            <FilterButton label="Today" value="today" />
-            <FilterButton label="Last 7 days" value="last7" />
-            <FilterButton label="Last month" value="lastMonth" />
-          </View>
+              <View style={styles.filterRow}>
+                <FilterButton label="Today" value="today" />
+                <FilterButton label="Last 7 days" value="last7" />
+                <FilterButton label="Last month" value="lastMonth" />
+              </View>
 
-          <View style={styles.filterRow}>
-            <FilterButton label="This month" value="thisMonth" />
-            <FilterButton label="This week" value="thisWeek" />
-            <FilterButton label="Custom range" value="custom" />
-          </View>
+              <View style={styles.filterRow}>
+                <FilterButton label="This month" value="thisMonth" />
+                <FilterButton label="This week" value="thisWeek" />
+                <FilterButton label="Custom range" value="custom" />
+              </View>
 
-          <Calendar
-            markingType={"period"}
-            markedDates={getMarkedDates()}
-            onDayPress={onDayPress}
-            theme={{
-              calendarBackground: "#121212",
-              monthTextColor: "white",
-              dayTextColor: "white",
-              todayTextColor: "#6C63FF",
-              arrowColor: "white",
-            }}
-          />
+              <View style={styles.calendarWrapper}>
+                <Calendar
+                  markingType={"period"}
+                  markedDates={getMarkedDates()}
+                  onDayPress={onDayPress}
+                  theme={{
+                    calendarBackground: "#111827",
+                    monthTextColor: "white",
+                    dayTextColor: "white",
+                    todayTextColor: "#6C63FF",
+                    arrowColor: "white",
+                  }}
+                />
+              </View>
 
-          <View style={styles.buttons}>
-            <TouchableOpacity
-              style={styles.clearBtn}
-              onPress={clearRange}
-            >
-              <Text style={styles.clearText}>Clear</Text>
-            </TouchableOpacity>
+              <View style={styles.buttons}>
+                <TouchableOpacity
+                  style={styles.clearBtn}
+                  onPress={clearRange}
+                >
+                  <Text style={styles.clearText}>Clear</Text>
+                </TouchableOpacity>
 
-            <TouchableOpacity
-              style={styles.applyBtn}
-              onPress={applyRange}
-            >
-              <Text style={styles.applyText}>Apply</Text>
-            </TouchableOpacity>
-          </View>
-
+                <TouchableOpacity
+                  style={styles.applyBtn}
+                  onPress={applyRange}
+                >
+                  <Text style={styles.applyText}>Apply</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </TouchableWithoutFeedback>
         </View>
-      </View>
+      </TouchableWithoutFeedback>
     </Modal>
   );
 };
@@ -222,10 +247,44 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   container: {
-    backgroundColor: "#1A1A1A",
-    borderTopLeftRadius: 25,
-    borderTopRightRadius: 25,
-    padding: 20,
+    backgroundColor: "#111827",
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 10,
+  },
+
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 12,
+  },
+
+  title: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+
+  closeButton: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#1f2937",
+  },
+
+  closeText: {
+    color: "#9ca3af",
+    fontSize: 16,
   },
 
   filterRow: {
@@ -250,14 +309,20 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
 
+  calendarWrapper: {
+    marginTop: 6,
+    borderRadius: 16,
+    overflow: "hidden",
+  },
+
   buttons: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 15,
+    marginTop: 16,
   },
 
   clearBtn: {
-    backgroundColor: "#333",
+    backgroundColor: "#1f2937",
     padding: 12,
     borderRadius: 10,
     width: "45%",

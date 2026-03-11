@@ -12,8 +12,8 @@ const AgentReports = ({ item }: { item: AgentReportsInterface }) => {
     <Link href={{
       pathname: '/BranchCVR/[id]',
       params: { id: item.branch_id }
-    }} asChild>
-
+    }} asChild
+    >
       <TouchableOpacity>
 
         <View style={styles.card}>
