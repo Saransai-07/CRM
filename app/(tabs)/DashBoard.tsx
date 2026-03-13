@@ -3,7 +3,7 @@ import { MetricCard, } from "@/src/components/MetricCard";
 import { TodayTopPerformers, TopPerformers } from "@/src/components/TopPerformers";
 import {  WeeklyConversionChart, WeeklySalesChart } from "@/src/components/WeeklySalesChart";
 import { useAuth } from "@/src/context/AuthContext";
-import { AttendanceResponse, DataItem, MetricCardProps, TopPerformer  } from "@/src/Interface/InterfaceData";
+import { AttendanceResponse, DataItem, MetricCardProps, TopPerformer, UserProfileData,  } from "@/src/Interface/InterfaceData";
 import { getToken, saveToken } from "@/src/lib/secureStorage";
 import { useTheme, useThemedStyles, type Theme } from "@/src/theme";
 import { Ionicons } from "@expo/vector-icons";
@@ -19,6 +19,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Image,
 } from "react-native";
 
 const DashBoard = () => {
@@ -38,9 +39,12 @@ const DashBoard = () => {
   const [WeeklyConversions, setWeeklyConverstions] = useState<DataItem[]> ([]);
   const [topPerformers, setTopPerformers] = useState<TopPerformer[]>([]);
   const [todayTopPerformers, setTodayTopPerformers] = useState<TopPerformer[]>([]);
+  const [userProfile, setUserProfile] = useState<UserProfileData | null>(null);
 
-  
-  
+  const profileImageUri = userProfile?.photo
+      ?`${BASE_URL}/${userProfile.photo}`
+    : null;
+
   const options = React.useMemo(() => ({
     method: "GET",
     headers: {
@@ -71,6 +75,7 @@ const DashBoard = () => {
     try {
       setLoading(true);
       await Promise.all([
+        fetchUserProfile(),
         fetchagentAttendance(),
         fetchCardsData(),
         fetchWeeklySales(),
@@ -222,6 +227,31 @@ const DashBoard = () => {
       Alert.alert("ERROR", error.message || " Weekly sales Data not shown");
     }
   };
+
+  
+   // User Profile 
+  const fetchUserProfile = async () =>{
+    try{
+      const response = await fetch(`${BASE_URL}/user/add_update_userprofile_by_user/`,options);
+      const data = await response.json();
+ 
+      if (!response.ok) {
+        if (response.status === 403) {
+          await logout();
+          router.replace("/(auth)/Login");
+          return;
+        }
+        console.error(data?.message);
+        throw new Error(data?.message || "Failed to fetch Weekly sales");
+      }
+      setUserProfile(data.data);
+      console.log(data);
+    }catch(error : any){
+      Alert.alert("ERROR", error.message || " Weekly sales Data not shown");
+    }
+  };
+
+
   
   
   if (loading) {
@@ -243,11 +273,18 @@ const DashBoard = () => {
           accessibilityLabel="Account / login details"
         >
           <View style={styles.profileIconCircle}>
-            <Ionicons
-              name="person-circle"
-              size={36}
-              color={theme.colors.textSecondary}
-            />
+            {profileImageUri ? (
+              <Image
+                source={{ uri: profileImageUri }}
+                style={styles.profileImage}
+              />
+            ) : (
+              <Ionicons
+                name="person-circle"
+                size={36}
+                color={theme.colors.textSecondary}
+              />
+            )}
           </View>
           {/* {displayName !== "Account" && (
             <Text style={styles.profileLabel} numberOfLines={1}>
@@ -314,7 +351,7 @@ const DashBoard = () => {
           /> */}
           <TopPerformers
             data={topPerformers}
-            onShowMore={() => router.push('/(tabs)/settings')}
+            onShowMore={() => router.push('/')}
           />
         </View>
 
@@ -370,6 +407,12 @@ const createStyles = (t: Theme) =>
       justifyContent: "center",
       borderWidth: 1,
       borderColor: t.colors.border,
+    },
+    profileImage: {
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      resizeMode: "cover",
     },
     profileLabel: {
       maxWidth: 120,

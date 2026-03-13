@@ -6,6 +6,7 @@ import {
   ActivityIndicator,
   StyleSheet,
   Alert,
+  ScrollView,
 } from "react-native";
 import { useState } from "react";
 import { useAuth } from "@/src/context/AuthContext";
@@ -21,7 +22,7 @@ export default function Login() {
 
   const BASE_URL = "http://202.65.141.178:8025";
 
-    
+
   const handleLogin = async (): Promise<void> => {
     if (!username || !password) {
       Alert.alert("Error", "Username and password are required");
@@ -30,28 +31,27 @@ export default function Login() {
 
     setLoading(true);
     try {
-    //   const response = await loginUser({ username, password });
-    //     await login(response); // Global auth update 
-    // //   console.log("LOGIN SUCCESS:", response);
-    // //   Alert.alert("Success", "Login successful");
+      //   const response = await loginUser({ username, password });
+      //     await login(response); // Global auth update 
+      // //   console.log("LOGIN SUCCESS:", response);
+      // //   Alert.alert("Success", "Login successful");
       const response = await fetch(`${BASE_URL}/user/login/`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        username,
-        password,
-      }),
-    });
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username,
+          password,
+        }),
+      });
 
-    const data = await response.json();
+      const data = await response.json();
+      if (!response.ok) {
+        console.error(JSON.stringify(data, null, 2))
+        throw new Error(data?.message || "Login failed");
+      }
       await login(data);
-
-    if (!response.ok) {
-      console.error(JSON.stringify(data, null, 2))
-      throw new Error(data?.message || "Login failed");
-    }
 
     } catch (error: any) {
       Alert.alert(
@@ -66,6 +66,7 @@ export default function Login() {
 
   return (
     <View style={styles.container}>
+      {/* <ScrollView> */}
       <Text style={styles.title}>Login</Text>
 
       <TextInput
@@ -97,6 +98,7 @@ export default function Login() {
           <Text style={styles.buttonText}>Login</Text>
         )}
       </TouchableOpacity>
+      {/* </ScrollView> */}
     </View>
   );
 }

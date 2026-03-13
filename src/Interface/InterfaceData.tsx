@@ -32,6 +32,21 @@ export interface TopPerformer {
   agent_profile: string;
 }
 
+export interface UserProfileResponse {
+    message: string;
+    data: UserProfileData;
+}
+
+export interface UserProfileData {
+    user_profile_id: number;
+    user_id: number;
+    photo: string ;
+    bio: string;
+    phone_number: string;
+    username: string;
+    is_idealtime : boolean;
+}
+
 export interface CommomApiInterface {
   total_count: number;
   total_pages: number;

@@ -1,24 +1,90 @@
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Platform,
-} from "react-native";
-import React from "react";
-import { useRouter } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "@/src/context/AuthContext";
-import { useThemedStyles, useTheme, type Theme } from "@/src/theme";
+import { UserProfileData } from "@/src/Interface/InterfaceData";
+import { getToken } from "@/src/lib/secureStorage";
+import { useTheme, useThemedStyles, type Theme } from "@/src/theme";
+import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import React, { useEffect, useState } from "react";
+import {
+  Alert,
+  Image,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 const UserData = () => {
   const router = useRouter();
-  const { authState, logout } = useAuth();
+  const { authState, logout, BASE_URL } = useAuth();
   const theme = useTheme();
   const styles = useThemedStyles(createStyles);
 
   const user = authState.user;
+  const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [userProfile, setUserProfile] = useState<UserProfileData | null>(null);
+
+
+  const profileImageUri = userProfile?.photo
+      ?`${BASE_URL}/${userProfile.photo}`
+    : null;
+
+  const options = React.useMemo(() => ({
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    },
+  }), [accessToken]);
+
+  
+  useEffect(() => {
+    const loadToken = async () => {
+      const token = await getToken("ACCESS_TOKEN");
+
+      if (!token) {
+        await logout();
+        router.replace("/(auth)/Login");
+        return;
+      }
+      setAccessToken(token)
+      setLoading(false);
+    };
+    
+    loadToken();
+  }, []);
+
+  useEffect(()=>{
+    if (!accessToken) return;
+    fetchUserProfile();
+  },[accessToken])
+
+  
+   // User Profile 
+   const fetchUserProfile = async () =>{
+    try{
+      const response = await fetch(`${BASE_URL}/user/add_update_userprofile_by_user/`,options);
+      const data = await response.json();
+ 
+      if (!response.ok) {
+        if (response.status === 403) {
+          await logout();
+          router.replace("/(auth)/Login");
+          return;
+        }
+        console.error(data?.message);
+        throw new Error(data?.message || "Failed to fetch Weekly sales");
+      }
+      setUserProfile(data.data);
+      console.log(data);
+    }catch(error : any){
+      Alert.alert("ERROR", error.message || " Weekly sales Data not shown");
+    }
+  };
+
 
   const handleLogout = async () => {
     await logout();
@@ -46,17 +112,24 @@ const UserData = () => {
       >
         <View style={styles.avatarRow}>
           <View style={styles.avatarCircle}>
-            <Ionicons
+            {profileImageUri ? (
+              <Image
+                source={{ uri: profileImageUri }}
+                style={styles.avatarCircle}
+              />
+            ) : (
+              <Ionicons
               name="person-circle"
               size={80}
               color={theme.colors.textSecondary}
             />
+            )}
           </View>
         </View>
 
         <View style={styles.card}>
           <Text style={styles.cardLabel}>Login details</Text>
-          {user && typeof user === "object" ? (
+          {/* {user && typeof user === "object" ? (
             Object.entries(user).map(([key, value]) => {
               if (value == null || typeof value === "object") return null;
               return (
@@ -68,6 +141,31 @@ const UserData = () => {
                 </View>
               );
             })
+          ) : (
+            <Text style={styles.emptyText}>No user data available</Text>
+          )} */}
+          
+          {userProfile ? (
+            <>
+              <View style={styles.row}>
+                <Text style={styles.rowLabel}>username</Text>
+                <Text style={styles.rowValue} numberOfLines={1}>
+                  {userProfile.username ?? "-"}
+                </Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.rowLabel}>phone number</Text>
+                <Text style={styles.rowValue} numberOfLines={1}>
+                  {userProfile.phone_number ?? "-"}
+                </Text>
+              </View>
+              <View style={[styles.row, styles.rowLast]}>
+                <Text style={styles.rowLabel}>is idealtime</Text>
+                <Text style={styles.rowValue} numberOfLines={1}>
+                  {String(userProfile.is_idealtime ?? false)}
+                </Text>
+              </View>
+            </>
           ) : (
             <Text style={styles.emptyText}>No user data available</Text>
           )}
@@ -166,6 +264,9 @@ const createStyles = (t: Theme) =>
       color: t.colors.textPrimary,
       flex: 1,
       textAlign: "right",
+    },
+    rowLast: {
+      borderBottomWidth: 0,
     },
     emptyText: {
       fontSize: 15,
