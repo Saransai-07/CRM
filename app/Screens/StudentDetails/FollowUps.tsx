@@ -1,26 +1,32 @@
-import { View, Text, StyleSheet, FlatList, ActivityIndicator } from 'react-native'
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import { router } from 'expo-router';
 import { getToken } from '@/src/lib/secureStorage';
+import { router } from 'expo-router';
 import { Theme, useThemedStyles } from '@/src/theme';
-import { BranchCVRInterface } from '@/src/Interface/InterfaceData';
+import { FollowUpInterface } from '@/src/Interface/InterfaceData';
 import { useAuth } from '@/src/context/AuthContext';
+import DateRangeModal from '@/src/components/DoubleDatePicker';
 import { Pagination } from '@/src/components/Pagination';
 import HeaderSearch from '@/src/components/ListHeader';
-import BranchCVRComponent from '@/src/components/CVR/BranchCVRComponent';
+import FollowUpComponent from '@/src/components/StudentsDetails/FollowUpComponent';
 
-const BranchCVR = () => {
+const FollowUps = () => {
+
   const { logout, authState, BASE_URL } = useAuth();
-  const [data, setData] = useState<BranchCVRInterface[]>([]);
+  const [data, setData] = useState<FollowUpInterface[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState<string>('')
   const [accessToken, setAccessToken] = useState<string | null>(null);
-
   const [refreshing, setRefreshing] = useState(false);
-
   const styles = useThemedStyles(createStyles);
+
+  const [dateModalVisible, setDateModalVisible] = useState(false);
+  const [startDate, setStartDate] = useState<string | null>(null);
+  const [endDate, setEndDate] = useState<string | null>(null);
+
+
 
 
   const options = React.useMemo(() => ({
@@ -47,7 +53,7 @@ const BranchCVR = () => {
   useEffect(() => {
     if (!accessToken) return;
     fetchData(page, search)
-  }, [accessToken, page, search]);
+  }, [accessToken, page, search, startDate, endDate]);
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -56,14 +62,13 @@ const BranchCVR = () => {
     setRefreshing(false);
   };
 
-
-
   const fetchData = async (pageNumber: number, search: string) => {
+
     try {
       setLoading(true)
-      const res = await fetch(`${BASE_URL}/wizklubcvr/branch_cvr/?page=${pageNumber}&search=${search}&from_date=&to_date=/`, options);
-      if(!res.ok){
-        setData([]);
+      const res = await fetch(`${BASE_URL}/wizklub/agent_call_backs/?page=${pageNumber}&search=${search}`, options);
+      if (!res.ok) {
+        setData([])
         return;
       }
       const json = await res.json();
@@ -89,16 +94,29 @@ const BranchCVR = () => {
     }
   };
 
-
-
   return (
     <View style={styles.container}>
 
       <HeaderSearch
-        title="📊 Branch CVR"
-        placeholder="Search agents..."
+        title="Follow Ups"
+        placeholder="Search..."
         onSearchChange={(searchText) => { setSearch(searchText), setPage(1) }}
       />
+      {/* 
+      <View style={styles.dateContainer}>
+
+        <TouchableOpacity
+          style={styles.dateButton}
+          onPress={() => setDateModalVisible(true)}
+        >
+          <Text style={styles.dateText}>
+            {startDate && endDate
+              ? `📅  ${startDate} → ${endDate}`
+              : "📅  Select Date Range"}
+          </Text>
+        </TouchableOpacity>
+      </View> */}
+
 
       {loading && !refreshing ? (
         <ActivityIndicator size='large' />
@@ -106,15 +124,21 @@ const BranchCVR = () => {
         <>
           <FlatList
             data={data}
-            keyExtractor={(item) => item.branch_id.toString()}
-            renderItem={({ item }) => <BranchCVRComponent item={item} />}
+            keyExtractor={(item, index) => `${item.student}-${index}`}
+            renderItem={({ item }) => (
+              <FollowUpComponent item={item} />
+            )}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ paddingBottom: 20 }}
             refreshing={refreshing}
             onRefresh={onRefresh}
             ListEmptyComponent={() => (
-              <Text style={styles.emptycomponent}>❎ No Branches found</Text>
+              <Text style={styles.emptycomponent}>❎ No Follow ups found</Text>
             )}
+            initialNumToRender={10}
+            maxToRenderPerBatch={10}
+            windowSize={5}
+            removeClippedSubviews={true}
           />
           <Pagination
             currentPage={page}
@@ -124,10 +148,21 @@ const BranchCVR = () => {
           />
         </>
       )}
-
+      <DateRangeModal
+        visible={dateModalVisible}
+        onClose={() => setDateModalVisible(false)}
+        onApply={(start, end) => {
+          setStartDate(start);
+          setEndDate(end);
+          setPage(1);
+        }}
+      />
     </View>
   )
-};
+}
+
+export default FollowUps
+
 
 const createStyles = (t: Theme) =>
   StyleSheet.create({
@@ -151,8 +186,28 @@ const createStyles = (t: Theme) =>
       flex: 1,
       fontSize: 20,
       color: '#fff'
-    }
+    },
+    dateContainer: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      marginBottom: 12,
+      gap: 10
+    },
+
+    dateButton: {
+      flex: 1,
+      backgroundColor: "#1f2937",
+      paddingVertical: 10,
+      paddingHorizontal: 12,
+      borderRadius: 10,
+      borderWidth: 1,
+      borderColor: "#374151"
+    },
+
+    dateText: {
+      color: "#fff",
+      fontWeight: "500",
+      textAlign: "center"
+    },
 
   });
-
-export default BranchCVR

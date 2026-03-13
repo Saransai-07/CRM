@@ -34,7 +34,7 @@ const Tabslayout = () => {
             <Tabs.Screen
                 name='Sales'
                 options={{
-                    title: 'Sales',
+                    title: 'Student Details',
                     tabBarIcon: ({ color }) =>
                         <Fontisto name="shopping-sale" color={color} size={24} />
                 }}

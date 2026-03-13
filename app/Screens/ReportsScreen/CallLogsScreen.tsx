@@ -102,7 +102,7 @@ const CallLogsScreen = () => {
     <View style={styles.container}>
 
       <HeaderSearch
-        title="Agents summary"
+        title="Call Logs"
         placeholder="Search..."
         onSearchChange={(searchText) => { setSearch(searchText), setPage(1) }}
       />

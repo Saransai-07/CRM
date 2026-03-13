@@ -5,7 +5,6 @@ import { useAuth } from '@/src/context/AuthContext';
 import { getToken } from '@/src/lib/secureStorage';
 import { router } from 'expo-router';
 import HeaderSearch from '@/src/components/ListHeader';
-import AgentCard from '@/src/components/CVR/AgentCard';
 import { Pagination } from '@/src/components/Pagination';
 import { AgentInputsInterface } from '@/src/Interface/InterfaceData';
 import AgentInputsComponent from '@/src/components/CVR/AgentInputsComponent';
@@ -22,7 +21,6 @@ const AgentInputs = () => {
   const [refreshing, setRefreshing] = useState(false);
 
   const styles = useThemedStyles(createStyles);
-
 
   const options = React.useMemo(() => ({
     method: "GET",
@@ -47,19 +45,8 @@ const AgentInputs = () => {
 
   useEffect(() => {
     if (!accessToken) return;
-    const loadSales = async () => {
-      try {
-        setLoading(true);
-        await Promise.all([
-          fetchData(page, search),
-        ]);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadSales();
+    fetchData(page, search)
+
   }, [accessToken, page, search]);
 
   const onRefresh = async () => {
@@ -69,10 +56,9 @@ const AgentInputs = () => {
     setRefreshing(false);
   };
 
-
-
   const fetchData = async (pageNumber: number, search: string) => {
     try {
+      setLoading(true)
       const res = await fetch(`${BASE_URL}/wizklub/wizklub_agent_wise_input/?page=${pageNumber}&search=${search}`, options);
       const json = await res.json();
       setData(json.results);
@@ -81,10 +67,9 @@ const AgentInputs = () => {
     } catch (error) {
       console.log("Error:", error);
     } finally {
+      setLoading(false)
     }
   };
-
-
 
   const handleNext = () => {
     if (page < totalPages) {
@@ -154,13 +139,12 @@ const createStyles = (t: Theme) =>
       fontWeight: "700",
       color: "#fff",
     },
-    emptycomponent :{
-      flex : 1,
-      fontSize : 20,
-      color : '#fff'
+    emptycomponent: {
+      flex: 1,
+      fontSize: 20,
+      color: '#fff'
     }
   });
-
 
 
 export default AgentInputs

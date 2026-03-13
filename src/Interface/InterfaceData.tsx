@@ -146,7 +146,7 @@ export interface AgentWiseCallLogInterface {
   caller_status: string;
   destination_status: string;
   call_status: string;
-  aws_call_recording_file: any |null,
+  aws_call_recording_file: any | null,
   zone_name: string;
   state_name: string;
 }
@@ -191,5 +191,143 @@ export interface SalesReportInterface {
   on_call_agent: number | null;
   sale_by_trainer: number | null;
   last_ticket_updated_user: number | null;
-
 }
+
+export interface Studentlist {
+  student_id: number;
+  SCS_Number: string;
+  name: string;
+  branch: number;
+  student_class: number;
+  admission_status: number;
+  orientation: number;
+  orientation_name: string;
+  wizklub_agent_name: string | null;
+  branch_name: string;
+  student_class_name: string;
+  wizklub_agent: number | null;
+  admission_status_name: string;
+  previous_orientation: number;
+  previous_orientation_name: string;
+  student_tags: any[];
+  student_tag_names: string;
+}
+
+
+export interface FollowUpInterface {
+  ticket_id: number;
+  name: string;
+  SCS_Number: string;
+  branch_name: string;
+  student_class_name: string;
+  student_id: string;
+  callbacktime: string;
+  call_back_time: string;
+  category_name: string;
+  sub_category_name: string;
+  is_last_year_paid: boolean;
+  orientation_name: string;
+  previous_orientation_name: string;
+  agent_name: string;
+  student_tag_names: string;
+  ticket_number: string;
+  description: string | null;
+  remarks: string | null;
+  resolve_notes: string | null;
+  is_active: boolean;
+  rating: number | null;
+  created_at: string;
+  updated_at: string;
+  is_sale: boolean;
+  is_ticket_by_trainer: boolean;
+  student: number;
+  disposition: number | null;
+  category: number;
+  subcategory: number;
+  priority: number;
+  ticket_status: number | null;
+  academic_year: number;
+  created_by: number;
+  updated_by: number;
+  ticket_closed_by: number | null;
+}
+
+
+export interface DailedInterface {
+  ticket_id: number;
+  name: string;
+  SCS_Number: string;
+  branch_name: string;
+  student_class_name: string;
+  student_id: string;
+  callbacktime: string | null;
+  call_back_time: string | null;
+  category_name: string;
+  sub_category_name: string;
+  orientation_name: string;
+  is_last_year_paid: boolean;
+  wizklub_agent_name: string | null;
+  student_tag_names: string;
+  ticket_number: string;
+  description: string;
+  remarks: string;
+  resolve_notes: string;
+  is_active: boolean;
+  rating: number | null;
+  created_at: string;
+  updated_at: string;
+  is_sale: boolean;
+  is_ticket_by_trainer: boolean;
+  student: number;
+  disposition: number | null;
+  category: number;
+  subcategory: number;
+  priority: number;
+  ticket_status: number | null;
+  academic_year: number;
+  created_by: number;
+  updated_by: number;
+  ticket_closed_by: number | null;
+  agent_name: number;
+}
+
+export interface Sibling {
+  SCS_Number: string;
+  name: string;
+  admission_status_name: string;
+  state_name: string;
+  zone_name: string;
+  branch_name: string;
+  orientation_name: string;
+  section_name: string;
+  student_class_name: string;
+  is_wizklub_paid_last_year: boolean;
+  is_wizklub_paid: boolean;
+}
+
+export interface Student {
+  student_id: number;
+  summercamp_agent: string | null;
+  SCS_Number: string;
+  name: string;
+  is_active: boolean;
+  gender_name: string;
+  admission_status_name: string;
+  state_name: string;
+  zone_name: string;
+  branch_name: string;
+  orientation_name: string;
+  student_class_name: string;
+  enrolling_class_name: string;
+  section_name: string;
+  agent_name: string | null;
+  academic_year_name: string;
+  no_of_attempts: number;
+  button: string;
+  is_wizklub_branch: boolean;
+  is_offline_branch: boolean;
+  is_wizklub_paid_last_year: boolean;
+  is_wizklub_paid: boolean;
+  siblings: Sibling[];
+}
+

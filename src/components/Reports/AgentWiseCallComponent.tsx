@@ -27,7 +27,7 @@ const togglePlayback = async () => {
     player.pause();
     setIsPlaying(false)
   } else {
-    await player.play();
+    player.play();
     setIsPlaying(true)
   }
 };
@@ -36,7 +36,6 @@ const togglePlayback = async () => {
     <View style={styles.card}>
       <View style={styles.cardTop}>
         <Text style={styles.agentName} numberOfLines={1}  ellipsizeMode="tail">{item.student_name}</Text>
-
         {recordingUrl && (
           <TouchableOpacity
             style={styles.recordingBtn}

@@ -95,7 +95,7 @@ const SalesScreen = () => {
     <View style={styles.container}>
 
       <HeaderSearch
-        title="Agents summary"
+        title="Wizklub Sales"
         placeholder="Search..."
         onSearchChange={(searchText) => { setSearch(searchText), setPage(1) }}
       />
