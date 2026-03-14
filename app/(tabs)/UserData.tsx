@@ -79,7 +79,6 @@ const UserData = () => {
         throw new Error(data?.message || "Failed to fetch Weekly sales");
       }
       setUserProfile(data.data);
-      console.log(data);
     }catch(error : any){
       Alert.alert("ERROR", error.message || " Weekly sales Data not shown");
     }
@@ -239,7 +238,7 @@ const createStyles = (t: Theme) =>
     cardLabel: {
       ...t.typography.footnote,
       fontWeight: "600",
-      color: t.colors.textSecondary,
+      color: t.colors.primary,
       textTransform: "uppercase",
       letterSpacing: 0.5,
       marginBottom: 12,

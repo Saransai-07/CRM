@@ -37,7 +37,7 @@ export const TopPerformers = ({ data, onShowMore }: Props) => {
         {onShowMore && (
           <TouchableOpacity onPress={onShowMore}>
             <Text style={styles.showMore}>
-              <Ionicons name="arrow-forward-circle-outline" color="#fff" size={24} />
+              {/* <Ionicons name="arrow-forward-circle-outline" color="#fff" size={24} /> */}
             </Text>
           </TouchableOpacity>
         )}

@@ -28,8 +28,6 @@ const DashBoard = () => {
   const theme = useTheme();
   const styles = useThemedStyles(createStyles);
 
-  // const displayName =  "Account";
-
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -245,7 +243,6 @@ const DashBoard = () => {
         throw new Error(data?.message || "Failed to fetch Weekly sales");
       }
       setUserProfile(data.data);
-      console.log(data);
     }catch(error : any){
       Alert.alert("ERROR", error.message || " Weekly sales Data not shown");
     }
@@ -351,7 +348,7 @@ const DashBoard = () => {
           /> */}
           <TopPerformers
             data={topPerformers}
-            onShowMore={() => router.push('/')}
+            // onShowMore={() => router.push('/')}
           />
         </View>
 

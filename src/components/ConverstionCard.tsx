@@ -61,6 +61,48 @@ function AnimatedProgressBar({
   );
 }
 
+
+function NegativeAnimatedProgressBar({
+  label,
+  percent,
+  colors = ["#ef4444", "#f87171"], // red gradient
+}: ProgressProps) {
+  const value = parseFloat(percent);
+  const progress = useSharedValue(0);
+
+  useEffect(() => {
+    progress.value = withTiming(Math.abs(value), {
+      duration: 900,
+    });
+  }, [value]);
+
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      width: `${progress.value}%`,
+    };
+  });
+
+  return (
+    <View style={styles.progressContainer}>
+      <View style={styles.row}>
+        <Text style={styles.label}>{label}</Text>
+        <Text style={[styles.percent, { color: "#ef4444" }]}>{percent}</Text>
+      </View>
+
+      <View style={styles.track}>
+        <Animated.View style={[styles.barContainer, animatedStyle]}>
+          <LinearGradient
+            colors={colors}
+            start={{ x: 1, y: 0 }}
+            end={{ x: 0, y: 0 }}
+            style={styles.bar}
+          />
+        </Animated.View>
+      </View>
+    </View>
+  );
+}
+
 /* ---------------- Branch Card ---------------- */
 
 export default function BranchCard({ item }: { item: BranchCVRInterface }) {
@@ -199,11 +241,20 @@ export default function BranchCard({ item }: { item: BranchCVRInterface }) {
         colors={["#14b8a6", "#2dd4bf"]}
       />
 
-      <AnimatedProgressBar
-        label="Difference in CVR"
-        percent={item.difference_in_cvr_per}
-        colors={["#7c3aed", "#a78bfa"]}
-      />
+      {parseFloat(item.difference_in_cvr_per) < 0 ? (
+        <NegativeAnimatedProgressBar
+          label="Difference in CVR"
+          percent={item.difference_in_cvr_per}
+          colors={["#b81414", "#cf5353"]}
+
+        />
+      ) : (
+        <AnimatedProgressBar
+          label="Difference in CVR"
+          percent={item.difference_in_cvr_per}
+          colors={["#14b8a6", "#2dd4bf"]}
+        />
+      )}
     </View>
   );
 }

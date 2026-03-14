@@ -98,7 +98,7 @@ const DailedScreen = () => {
     <View style={styles.container}>
 
       <HeaderSearch
-        title="Follow Ups"
+        title="Dailed"
         placeholder="Search..."
         onSearchChange={(searchText) => { setSearch(searchText), setPage(1) }}
       />
