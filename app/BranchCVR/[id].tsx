@@ -82,7 +82,7 @@ const BranchCVRScreen = () => {
 
       {loading && !refreshing ? (
         <ActivityIndicator size='large' />
-      ) : (
+      ) : ( 
         <>
           <FlatList
             data={data}

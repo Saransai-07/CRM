@@ -1,9 +1,9 @@
 import { AttendanceActivityCard } from "@/src/components/AttendanceActivityCard";
 import { MetricCard, } from "@/src/components/MetricCard";
 import { TodayTopPerformers, TopPerformers } from "@/src/components/TopPerformers";
-import {  WeeklyConversionChart, WeeklySalesChart } from "@/src/components/WeeklySalesChart";
+import { WeeklyConversionChart, WeeklySalesChart } from "@/src/components/WeeklySalesChart";
 import { useAuth } from "@/src/context/AuthContext";
-import { AttendanceResponse, DataItem, MetricCardProps, TopPerformer, UserProfileData,  } from "@/src/Interface/InterfaceData";
+import { AttendanceResponse, DataItem, MetricCardProps, TopPerformer, UserProfileData, } from "@/src/Interface/InterfaceData";
 import { getToken, saveToken } from "@/src/lib/secureStorage";
 import { useTheme, useThemedStyles, type Theme } from "@/src/theme";
 import { Ionicons } from "@expo/vector-icons";
@@ -31,16 +31,16 @@ const DashBoard = () => {
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [attendance, setAttendance] = useState<AttendanceResponse | null> (null);
-  const [cardsData, setCardsData] = useState<MetricCardProps[]> ([]);
-  const [weeklyData, setWeeklysales] = useState<DataItem[]> ([]);
-  const [WeeklyConversions, setWeeklyConverstions] = useState<DataItem[]> ([]);
+  const [attendance, setAttendance] = useState<AttendanceResponse | null>(null);
+  const [cardsData, setCardsData] = useState<MetricCardProps[]>([]);
+  const [weeklyData, setWeeklysales] = useState<DataItem[]>([]);
+  const [WeeklyConversions, setWeeklyConverstions] = useState<DataItem[]>([]);
   const [topPerformers, setTopPerformers] = useState<TopPerformer[]>([]);
   const [todayTopPerformers, setTodayTopPerformers] = useState<TopPerformer[]>([]);
   const [userProfile, setUserProfile] = useState<UserProfileData | null>(null);
 
   const profileImageUri = userProfile?.photo
-      ?`${BASE_URL}/${userProfile.photo}`
+    ? `${BASE_URL}/${userProfile.photo}`
     : null;
 
   const options = React.useMemo(() => ({
@@ -64,11 +64,11 @@ const DashBoard = () => {
       setAccessToken(token)
       setLoading(false);
     };
-    
+
     loadToken();
   }, []);
-  
-  
+
+
   const loadDashboard = async () => {
     try {
       setLoading(true);
@@ -90,43 +90,43 @@ const DashBoard = () => {
 
   useEffect(() => {
     if (!accessToken) return;
-      loadDashboard();
+    loadDashboard();
   }, [accessToken]);
 
-  const onRefresh = async () =>{
-    if(!accessToken) return;
+  const onRefresh = async () => {
+    if (!accessToken) return;
     setRefreshing(true);
     await loadDashboard();
     setRefreshing(false);
   }
-  
-  //  Attendance Report 
-  const fetchagentAttendance = async () =>{
-   try{
-     const response = await fetch(`${BASE_URL}/new_dashboards/attendance_dashboard/`,options);
-     const data = await response.json();
 
-     if (!response.ok) {
-       if (response.status === 403) {
-         await logout();
-         router.replace("/(auth)/Login");
-        return;
+  //  Attendance Report 
+  const fetchagentAttendance = async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/new_dashboards/attendance_dashboard/`, options);
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (response.status === 403) {
+          await logout();
+          router.replace("/(auth)/Login");
+          return;
+        }
+        console.error(data);
+        throw new Error(data?.message || "Failed to fetch attendance");
       }
-       console.error(data);
-       throw new Error(data?.message || "Failed to fetch attendance");
-     }
-     setAttendance(data);
-   }catch(error : any){
-     Alert.alert("ERROR", error.message || "Attendance Data not shown");
-   }
+      setAttendance(data);
+    } catch (error: any) {
+      Alert.alert("ERROR", error.message || "Attendance Data not shown");
+    }
   };
 
   //  Cards Data 
-  const fetchCardsData = async () =>{
-    try{
-      const response = await fetch(`${BASE_URL}/new_dashboards/dashboard_cards/`,options);
+  const fetchCardsData = async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/new_dashboards/dashboard_cards/`, options);
       const data = await response.json();
- 
+
       if (!response.ok) {
         if (response.status === 403) {
           await logout();
@@ -137,17 +137,17 @@ const DashBoard = () => {
         throw new Error(data?.message || "Failed to fetch Cards Data");
       }
       setCardsData(data);
-    }catch(error : any){
+    } catch (error: any) {
       Alert.alert("ERROR", error.message || "Cards Data not shown");
     }
-   };
+  };
 
   //  Weekly Sales 
-  const fetchWeeklySales = async () =>{
-    try{
-      const response = await fetch(`${BASE_URL}/new_dashboards/wizklub_sales_graph_dashboard/`,options);
+  const fetchWeeklySales = async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/new_dashboards/wizklub_sales_graph_dashboard/`, options);
       const data = await response.json();
- 
+
       if (!response.ok) {
         if (response.status === 403) {
           await logout();
@@ -158,17 +158,17 @@ const DashBoard = () => {
         throw new Error(data?.message || "Failed to fetch Weekly sales");
       }
       setWeeklysales(data);
-    }catch(error : any){
+    } catch (error: any) {
       Alert.alert("ERROR", error.message || " Weekly sales Data not shown");
     }
   };
 
   //  Weekly Converstions 
-  const fetchWeeklyConverstions = async () =>{
-    try{
-      const response = await fetch(`${BASE_URL}/new_dashboards/wizklub_conversation_time_graph_dashboard/`,options);
+  const fetchWeeklyConverstions = async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/new_dashboards/wizklub_conversation_time_graph_dashboard/`, options);
       const data = await response.json();
- 
+
       if (!response.ok) {
         if (response.status === 403) {
           await logout();
@@ -179,17 +179,17 @@ const DashBoard = () => {
         throw new Error(data?.message || "Failed to fetch Weekly Converstions");
       }
       setWeeklyConverstions(data);
-    }catch(error : any){
+    } catch (error: any) {
       Alert.alert("ERROR", error.message || " Weekly Converstions Data not shown");
     }
   };
 
   //  Top Performers 
-  const fetchOverallTopPerformers = async () =>{
-    try{
-      const response = await fetch(`${BASE_URL}/new_dashboards/wizklub_overall_top_three_performers/`,options);
+  const fetchOverallTopPerformers = async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/new_dashboards/wizklub_overall_top_three_performers/`, options);
       const data = await response.json();
- 
+
       if (!response.ok) {
         if (response.status === 403) {
           await logout();
@@ -200,17 +200,17 @@ const DashBoard = () => {
         throw new Error(data?.message || "Failed to fetch Weekly sales");
       }
       setTopPerformers(data);
-    }catch(error : any){
+    } catch (error: any) {
       Alert.alert("ERROR", error.message || " Weekly sales Data not shown");
     }
   };
 
-   // Today Top Performers 
-  const fetchTodayTopPerformers = async () =>{
-    try{
-      const response = await fetch(`${BASE_URL}/new_dashboards/wizklub_today_top_three_performers/`,options);
+  // Today Top Performers 
+  const fetchTodayTopPerformers = async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/new_dashboards/wizklub_today_top_three_performers/`, options);
       const data = await response.json();
- 
+
       if (!response.ok) {
         if (response.status === 403) {
           await logout();
@@ -221,18 +221,18 @@ const DashBoard = () => {
         throw new Error(data?.message || "Failed to fetch Weekly sales");
       }
       setTodayTopPerformers(data);
-    }catch(error : any){
+    } catch (error: any) {
       Alert.alert("ERROR", error.message || " Weekly sales Data not shown");
     }
   };
 
-  
-   // User Profile 
-  const fetchUserProfile = async () =>{
-    try{
-      const response = await fetch(`${BASE_URL}/user/add_update_userprofile_by_user/`,options);
+
+  // User Profile 
+  const fetchUserProfile = async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/user/add_update_userprofile_by_user/`, options);
       const data = await response.json();
- 
+
       if (!response.ok) {
         if (response.status === 403) {
           await logout();
@@ -243,14 +243,14 @@ const DashBoard = () => {
         throw new Error(data?.message || "Failed to fetch Weekly sales");
       }
       setUserProfile(data.data);
-    }catch(error : any){
+    } catch (error: any) {
       Alert.alert("ERROR", error.message || " Weekly sales Data not shown");
     }
   };
 
 
-  
-  
+
+
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -258,7 +258,7 @@ const DashBoard = () => {
       </View>
     );
   }
-  
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -290,18 +290,18 @@ const DashBoard = () => {
           )} */}
         </TouchableOpacity>
       </View>
-{/*=========================== DashBoard ================================================= */}
+      {/*=========================== DashBoard ================================================= */}
       <ScrollView
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
-            onRefresh={onRefresh} 
+            onRefresh={onRefresh}
           />
         }
       >
         <View>
-          {attendance && (
+          {attendance?.is_admin && (
             <AttendanceActivityCard
               total_agents={attendance.total_agents}
               no_of_present_agents={attendance.no_of_present_agents}
@@ -310,9 +310,9 @@ const DashBoard = () => {
               is_admin={attendance.is_admin}
             />
           )}
-         
-      </View>      
-        <View style={styles.card1}> 
+        </View>
+
+        <View style={styles.card1}>
           {cardsData.length > 0 && (
             cardsData.map((item: any) => (
               <MetricCard
@@ -326,29 +326,27 @@ const DashBoard = () => {
                 logo={item.logo}
               />
             )))}
-          </View>
+        </View>
+
         <View>
           <WeeklySalesChart data={weeklyData} />
         </View>
-        
+
         <View>
           <WeeklyConversionChart data={WeeklyConversions} />
         </View>
-        
+
         <View>
           <TodayTopPerformers
             data={todayTopPerformers}
+          // onShowMore={() => router.push('/')}
           />
         </View>
-        
+
         <View>
-          {/* <TopPerformers
-            data={topPerformers}
-            onShowMore={() => router.push('/(tabs)/settings')}
-          /> */}
           <TopPerformers
             data={topPerformers}
-            // onShowMore={() => router.push('/')}
+          // onShowMore={() => router.push('/')}
           />
         </View>
 
@@ -370,9 +368,9 @@ const createStyles = (t: Theme) =>
       backgroundColor: t.colors.background,
       padding: 20,
     },
-    card1 : {
+    card1: {
       flexDirection: "row",
-      flexWrap : 'wrap',
+      flexWrap: 'wrap',
       // alignItems: "center",
       justifyContent: "space-between",
       // margin : 

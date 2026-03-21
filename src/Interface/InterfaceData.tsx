@@ -345,4 +345,51 @@ export interface Student {
   is_wizklub_paid: boolean;
   siblings: Sibling[];
 }
+ 
+export interface Guardian {
+  id: number;
+  student: number;
+  relation_type: number;
+  relation_type_name: string;
+  name: string;
+  phone_number: string;
+}
 
+export interface TicketInterface  {
+  ticket_id: number;
+  ticket_number: string;
+  student: number;
+  category: number;
+  subcategory: number;
+  priority: number;
+  call_back_time: string;
+  call_back_time_local: string;
+  description: string | null;
+  agent_name: number;
+  academic_year_name: string;
+  academic_year: number;
+}
+
+
+export interface TicketLogInterface {
+  ticket_log_id: number;
+  ticket_number: string;
+  created_by_name: string;
+  updated_by_name: string;
+  created_at: string;
+  updated_at: string;
+  is_ticket_by_trainer: string; // Could be "Agent" or other values
+  call_logs: any[]; // Array of call log objects, empty array if none
+  remarks: string | null;
+  is_active: boolean;
+  heading: string;
+  ticket: number;
+  created_by: number;
+  updated_by: number;
+  correlations: any[]; // Array of correlation objects, empty array if none
+  call_back_time: string;
+  subcategory_name: string;
+  category_name : string;
+  priority_name : string;
+  description : string
+}

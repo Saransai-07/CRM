@@ -5,6 +5,7 @@ import SegmentTabs from '@/src/components/SegmentTabs';
 import StudentsListScreen from '../Screens/StudentDetails/StudentsListScreen';
 import FollowUps from '../Screens/StudentDetails/FollowUps';
 import DailedScreen from '../Screens/StudentDetails/DailedScreen';
+import SegmentControl from '@/src/components/SegmentTabs';
 
 
 const StudentDetails = () => {
@@ -27,7 +28,7 @@ const StudentDetails = () => {
   return (
     <View style={{ flex: 1, backgroundColor: "#1C1C1E", }}>
 
-      <SegmentTabs
+      <SegmentControl
         routes={routes}
         index={index}
         setIndex={setIndex}

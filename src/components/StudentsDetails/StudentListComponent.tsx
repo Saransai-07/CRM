@@ -6,13 +6,14 @@ import { Link } from 'expo-router'
 
 const StudentListComponent = ({ item }: { item: Studentlist }) => {
   return (
-    // <Link 
-    //   // href={{
-    //   //   params : {
-    //   //     id : item.student_id
-    //   //   }
-    //   // }}
-    // > 
+    <Link 
+      href={{
+        pathname: '/Tickets/StudentInstance',
+        params : {
+          id : item.student_id, scsnumber : item.SCS_Number
+        }
+      }} asChild
+    > 
     <TouchableOpacity>
       <View style={styles.card}>
         <View style={styles.cardTop}>
@@ -41,7 +42,7 @@ const StudentListComponent = ({ item }: { item: Studentlist }) => {
         </View>
       </View>
     </TouchableOpacity>
-    // </Link>
+  </Link>
   )
 }
 

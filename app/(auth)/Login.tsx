@@ -1,7 +1,7 @@
 import { useAuth } from "@/src/context/AuthContext";
 import { useTheme, useThemedStyles, type Theme } from "@/src/theme";
 import { Ionicons } from "@expo/vector-icons";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -11,8 +11,10 @@ import {
   TouchableOpacity,
   View,
   KeyboardAvoidingView,
-  Platform
+  Platform,
+  Animated
 } from "react-native";
+import * as Haptics from "expo-haptics";
 
 export default function Login() {
   const { login } = useAuth();
@@ -23,42 +25,102 @@ export default function Login() {
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
+  const [usernameError, setUsernameError] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
   const BASE_URL = "https://app.srichaitanyacrm.com";
+  // const BASE_URL = "http://202.65.141.178:8025";
+
+
+  const shakeAnim = useRef(new Animated.Value(0)).current;
+
+  const usernameRef = useRef<TextInput>(null);
+  const passwordRef = useRef<TextInput>(null);  
+
+  const triggerShake = () => {
+    Animated.sequence([
+      Animated.timing(shakeAnim, {
+        toValue: 10,
+        duration: 50,
+        useNativeDriver: true
+      }),
+      Animated.timing(shakeAnim, {
+        toValue: -10,
+        duration: 50,
+        useNativeDriver: true
+      }),
+      Animated.timing(shakeAnim, {
+        toValue: 6,
+        duration: 50,
+        useNativeDriver: true
+      }),
+      Animated.timing(shakeAnim, {
+        toValue: -6,
+        duration: 50,
+        useNativeDriver: true
+      }),
+      Animated.timing(shakeAnim, {
+        toValue: 0,
+        duration: 50,
+        useNativeDriver: true
+      })
+    ]).start();
+  };
 
   const handleLogin = async () => {
+    setUsernameError(null);
+    setPasswordError(null);
+
     if (!username || !password) {
-      Alert.alert("Error", "Username and password are required");
+      if (!username) setUsernameError("Username is required");
+      if (!password) setPasswordError("Password is required");
       return;
     }
-
     setLoading(true);
-
     try {
       const response = await fetch(`${BASE_URL}/user/login/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({
-          username,
-          password
-        })
+        body: JSON.stringify({ username, password })
       });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data?.message || "Login failed");
+      let data: any = {};
+      try {
+        data = await response.json();
+      } catch {
+        data = {};
       }
-
+      if (!response.ok) {
+        if (data?.username) {
+          setUsernameError(data.username[0]);
+          usernameRef.current?.focus();
+          triggerShake();
+          Haptics.notificationAsync(
+            Haptics.NotificationFeedbackType.Error
+          );
+        }
+        if (data?.password) {
+          setPasswordError(data.password[0]);
+          passwordRef.current?.focus();
+          triggerShake();
+          Haptics.notificationAsync(
+            Haptics.NotificationFeedbackType.Error
+          );
+        }
+        if (!data?.username && !data?.password) {
+          Alert.alert("Login Failed", "Invalid username or password");
+        }
+        return;
+      }
       await login(data);
-    } catch (error: any) {
-      Alert.alert(
-        "Login Failed",
-        error?.message || "Invalid username or password"
+      Haptics.notificationAsync(
+        Haptics.NotificationFeedbackType.Success
       );
+
+    } catch (error) {
+      Alert.alert("Error", "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -67,48 +129,80 @@ export default function Login() {
   return (
     <KeyboardAvoidingView
       style={styles.wrapper}
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      behavior={Platform.OS === "ios" ? "padding" : "padding"}
     >
       <View style={styles.container}>
-        <Text style={styles.title}>Login</Text>
+        <Text style={styles.title}>CRM Login</Text>
 
         {/* Username */}
-        <TextInput
-          placeholder="Username"
-          placeholderTextColor={theme.colors.textTertiary}
-          value={username}
-          onChangeText={setUsername}
-          style={styles.input}
-          autoCapitalize="none"
-        />
+        <Animated.View style={{ transform: [{ translateX: shakeAnim }] }}>
+          <TextInput
+            ref={usernameRef}
+            placeholder="Username"
+            placeholderTextColor={theme.colors.textTertiary}
+            value={username}
+            onChangeText={(text) => {
+              setUsername(text);
+              setUsernameError(null);
+            }}
+            style={[
+              styles.input,
+              usernameError && { borderColor: theme.colors.danger }
+            ]}
+            autoCapitalize="none"
+          />
+        </Animated.View>
+
+        {usernameError && (
+          <Text style={styles.errorText}>{usernameError}</Text>
+        )}
 
         {/* Password */}
-        <View style={styles.passwordContainer}>
-          <TextInput
-            placeholder="Password"
-            placeholderTextColor={theme.colors.textTertiary}
-            value={password}
-            onChangeText={setPassword}
-            style={styles.passwordInput}
-            secureTextEntry={!showPassword}
-          />
-
-          <TouchableOpacity
-            onPress={() => setShowPassword(!showPassword)}
-            style={styles.eyeButton}
+        <Animated.View
+          style={[
+            { transform: [{ translateX: shakeAnim }] }
+          ]}
+        >
+          <View
+            style={[
+              styles.passwordContainer,
+              passwordError && { borderColor: theme.colors.danger }
+            ]}
           >
-            <Ionicons
-              name={showPassword ? "eye-off-outline" : "eye-outline"}
-              size={22}
-              color={theme.colors.textSecondary}
+            <TextInput
+              ref={passwordRef}
+              placeholder="Password"
+              placeholderTextColor={theme.colors.textTertiary}
+              value={password}
+              onChangeText={(text) => {
+                setPassword(text);
+                setPasswordError(null);
+              }}
+              style={styles.passwordInput}
+              secureTextEntry={!showPassword}
             />
-          </TouchableOpacity>
-        </View>
 
+            <TouchableOpacity
+              onPress={() => setShowPassword(!showPassword)}
+              style={styles.eyeButton}
+            >
+              <Ionicons
+                name={showPassword ? "eye-off-outline" : "eye-outline"}
+                size={22}
+                color={theme.colors.textSecondary}
+              />
+            </TouchableOpacity>
+          </View>
+        </Animated.View>
+
+        {passwordError && (
+          <Text style={styles.errorText}>{passwordError}</Text>
+        )}
         {/* Login Button */}
         <TouchableOpacity
           style={styles.button}
           onPress={handleLogin}
+          disabled={loading}
           activeOpacity={0.8}
         >
           {loading ? (
@@ -176,6 +270,12 @@ const createStyles = (t: Theme) =>
     eyeText: {
       color: t.colors.textSecondary,
       fontSize: 14
+    },
+    errorText: {
+      color: "#ff4d4f",
+      fontSize: 13,
+      marginTop: -10,
+      marginBottom: 10
     },
 
     button: {
