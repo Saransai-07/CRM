@@ -1,51 +1,58 @@
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { AgentReport } from "../../Interface/InterfaceData";
-import { Link, useRouter } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
+import React from 'react'
+import { Ionicons } from '@expo/vector-icons'
+import { FollowUpInterface } from '@/src/Interface/InterfaceData'
+import { Link } from 'expo-router'
 
-const AgentCard = ({ item }: { item: AgentReport }) => {
-  const router = useRouter();
-
+const FollowUpComponent = ({ item }: { item: FollowUpInterface }) => {
   return (
-    <Link
+    <Link 
       href={{
-        pathname: "/AgentReports/[id]",
-        params: { id: item.id, name : item.username },
-      }}
-      asChild
+        pathname : '/Tickets/StudentInstance',
+        params : {
+           id : item.student_id, scsnumber : item.SCS_Number
+        }
+      }} asChild
     >
       <TouchableOpacity>
         <View style={styles.card}>
           <View style={styles.cardTop}>
-            <Text style={styles.agentName}>👨‍💼 {item.username}</Text>
+            <Text style={styles.agentName}>  {item.name}</Text>
             <Ionicons name="chevron-forward" size={20} color="#8E8E93" />
           </View>
           <View style={styles.divider} />
           <View style={styles.row}>
-            <Text style={styles.label}>🏫 Branches</Text>
-            <Text style={styles.value}>{item.no_of_branches}</Text>
+            <Text style={styles.label}> SCSNumber</Text>
+            <Text style={styles.value}>{item.SCS_Number}</Text>
           </View>
 
           <View style={styles.row}>
-            <Text style={styles.label}>📞 Unique Student Touch</Text>
-            <Text style={styles.value}>{item.students_connected}</Text>
+            <Text style={styles.label}>Branch</Text>
+            <Text style={styles.value}>{item.branch_name}</Text>
           </View>
 
           <View style={styles.row}>
-            <Text style={styles.label}>🎯 Sales</Text>
-            <Text style={styles.value}>{item.students_sales_count}</Text>
+            <Text style={styles.label}> Class </Text>
+            <Text style={styles.value}>{item.student_class_name}({item.orientation_name})</Text>
           </View>
 
           <View style={styles.row}>
-            <Text style={styles.label}>📈 CVR</Text>
-            <Text style={styles.value}>{item.cvr}</Text>
+            <Text style={styles.label}> Category </Text>
+            <Text style={styles.value}>{item.category_name}</Text>
+          </View>
+
+          <View style={styles.row}>
+            <Text style={styles.label}> Agent </Text>
+            <Text style={styles.value}>{item.agent_name}</Text>
           </View>
         </View>
       </TouchableOpacity>
     </Link>
-  );
-};
-export default AgentCard;
+  )
+}
+
+export default FollowUpComponent
+
 
 const styles = StyleSheet.create({
   card: {

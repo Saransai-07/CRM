@@ -1,19 +1,19 @@
-import { View, Text, StyleSheet, ActivityIndicator, FlatList, ScrollView, RefreshControl } from 'react-native'
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import { useLocalSearchParams, useRouter } from 'expo-router'
+import { getToken } from '@/src/lib/secureStorage';
 import { Theme, useThemedStyles } from '@/src/theme';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useAuth } from '@/src/context/AuthContext';
+import { AgentWiseCallLogInterface } from '@/src/Interface/InterfaceData';
 import { Pagination } from '@/src/components/Pagination';
 import HeaderSearch from '@/src/components/ListHeader';
-import { useAuth } from '@/src/context/AuthContext';
-import { AgentReportsInterface } from '@/src/Interface/InterfaceData';
-import { getToken } from '@/src/lib/secureStorage';
-import AgentCard from '@/src/components/CVR/AgentCard';
-import AgentReports from '@/src/components/CVR/AgentReports';
+import AgentWiseCallComponent from '@/src/components/Reports/AgentWiseCallComponent';
+import DateRangeModal from '@/src/components/DoubleDatePicker';
 
-const WizklubAgentsReports = () => {
-  const { id, name } = useLocalSearchParams();
+const AgentWiseCallLog = () => {
+  const { id, name, startDate, endDate } = useLocalSearchParams();
   const { logout, authState, BASE_URL } = useAuth();
-  const [data, setData] = useState<AgentReportsInterface[]>([]);
+  const [data, setData] = useState<AgentWiseCallLogInterface[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -22,6 +22,10 @@ const WizklubAgentsReports = () => {
   const router = useRouter();
   const styles = useThemedStyles(createStyles);
   const [refreshing, setRefreshing] = useState(false);
+
+  const [dateModalVisible, setDateModalVisible] = useState(false);
+  const [startDate1, setStartDate] = useState<any>(startDate);
+  const [endDate1, setEndDate] = useState<any>(endDate);
 
 
 
@@ -49,16 +53,22 @@ const WizklubAgentsReports = () => {
   useEffect(() => {
     if (!accessToken) return;
     fetchData(page, search)
-  }, [accessToken, page, search, id]);
+  }, [accessToken, page, search, id, startDate1, endDate1]);
 
 
 
   const fetchData = async (pageNumber: number, search: string) => {
     try {
-      setLoading(true) 
-      const res = await fetch(`${BASE_URL}/wizklub/wizklub_agent_branch_wise_reports/?agent=${id}&page=${pageNumber}&search=${search}`, options);
+      setLoading(true)
+      // const fromDate = typeof startDate === "string" ? startDate : "";
+      // const toDate = typeof endDate === "string" ? endDate : "";
+
+      const res = await fetch(
+        `${BASE_URL}/call/agent_wise_wizklub_call_logs/${id}/?page=${pageNumber}&search=${search}&from_date=${startDate1}&to_date=${endDate1}`,
+        options
+      );
       const json = await res.json();
-      setData(json.results || "");
+      setData(json.results);
       setTotalPages(json.total_pages);
       setPage(json.current_page_number);
     } catch (error) {
@@ -91,27 +101,42 @@ const WizklubAgentsReports = () => {
 
 
   return (
-
     <View style={styles.container}>
       <HeaderSearch
         title={name}
         placeholder="Search"
         onSearchChange={(searchText) => { setSearch(searchText), setPage(1) }}
       />
+
+      <View style={styles.dateContainer}>
+
+        <TouchableOpacity
+          style={styles.dateButton}
+          onPress={() => setDateModalVisible(true)}
+        >
+          <Text style={styles.dateText}>
+            {startDate1 && endDate1
+              ? `📅  ${startDate1} → ${endDate1}`
+              : "📅  Select Date Range"}
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+
       {loading && !refreshing ? (
         <ActivityIndicator size='large' />
       ) : (
         <>
           <FlatList
             data={data}
-            keyExtractor={(item) => item.branch_id.toString()}
-            renderItem={({ item }) => <AgentReports key={item.branch_id} item={item} />}
+            keyExtractor={(item, index) => `${item.student}-${index}`}
+            renderItem={({ item }) => <AgentWiseCallComponent item={item} />}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ paddingBottom: 20 }}
             refreshing={refreshing}
             onRefresh={onRefresh}
             ListEmptyComponent={() => (
-              <Text style={styles.emptycomponent}> ❎ No Data Found</Text>
+              <Text style={styles.emptycomponent}> ❎ No Call Logs Found</Text>
             )}
           />
           <View style={styles.pagiantion}>
@@ -130,12 +155,22 @@ const WizklubAgentsReports = () => {
           </View>
         </>
       )}
+
+      <DateRangeModal
+        visible={dateModalVisible}
+        onClose={() => setDateModalVisible(false)}
+        onApply={(start, end) => {
+          setStartDate(start);
+          setEndDate(end);
+          setPage(1);
+        }}
+      />
     </View>
-
   )
-};
+}
 
-export default WizklubAgentsReports
+export default AgentWiseCallLog
+
 
 const createStyles = (t: Theme) =>
   StyleSheet.create({
@@ -155,14 +190,36 @@ const createStyles = (t: Theme) =>
       fontWeight: "700",
       color: "#fff",
     },
-    emptycomponent :{
-      flex : 1,
-      fontSize : 20,
-      color : '#fff'
+    emptycomponent: {
+      flex: 1,
+      fontSize: 20,
+      color: '#fff'
     },
 
-    pagiantion : {
-      marginBottom : 10
+    pagiantion: {
+      marginBottom: 10
+    },
+    dateContainer: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      marginBottom: 12,
+      gap: 10
+    },
+
+    dateButton: {
+      flex: 1,
+      backgroundColor: "#1f2937",
+      paddingVertical: 10,
+      paddingHorizontal: 12,
+      borderRadius: 10,
+      borderWidth: 1,
+      borderColor: "#374151"
+    },
+
+    dateText: {
+      color: "#fff",
+      fontWeight: "500",
+      textAlign: "center"
     },
 
   });

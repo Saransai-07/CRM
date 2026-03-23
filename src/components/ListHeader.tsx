@@ -51,7 +51,7 @@ const HeaderSearch = ({
             autoFocus
           />
           <Pressable onPress={handleSearchToggle}>
-            <Ionicons name="close" size={20} color="#007AFF" />
+            <Ionicons name="close" size={20} color="#a450ff" />
           </Pressable>
         </View>
       ) : (
@@ -59,7 +59,7 @@ const HeaderSearch = ({
           <Text style={styles.headerTitle}>{title}</Text>
           {showSearch && (
             <Pressable onPress={handleSearchToggle} hitSlop={10}>
-              <Ionicons name="search" size={22} color="#007AFF" />
+              <Ionicons name="search" size={22} color="#a450ff" />
             </Pressable>
           )}
         </View>

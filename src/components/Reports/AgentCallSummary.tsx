@@ -1,51 +1,62 @@
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { AgentReport } from "../../Interface/InterfaceData";
-import { Link, useRouter } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
+import React from 'react'
+import { Link } from 'expo-router'
+import { Ionicons } from '@expo/vector-icons'
+import { AgentCallSummaryInterface } from '@/src/Interface/InterfaceData'
 
-const AgentCard = ({ item }: { item: AgentReport }) => {
-  const router = useRouter();
-
+const AgentCallSummary = ({
+  item,
+  startDate,
+  endDate,
+}: {
+  item: AgentCallSummaryInterface;
+  startDate: string | null;
+  endDate: string | null;
+}) => {
   return (
     <Link
       href={{
-        pathname: "/AgentReports/[id]",
-        params: { id: item.id, name : item.username },
+        pathname: '/Screens/ReportsScreen/AgentwiseCallSummary/[id]',
+        params: {
+          id: item.id,
+          name: item.username,
+          startDate: startDate ?? "",
+          endDate: endDate ?? "",
+        },
       }}
       asChild
     >
       <TouchableOpacity>
         <View style={styles.card}>
           <View style={styles.cardTop}>
-            <Text style={styles.agentName}>👨‍💼 {item.username}</Text>
+            <Text style={styles.agentName}>  {item.username}</Text>
             <Ionicons name="chevron-forward" size={20} color="#8E8E93" />
           </View>
           <View style={styles.divider} />
           <View style={styles.row}>
-            <Text style={styles.label}>🏫 Branches</Text>
-            <Text style={styles.value}>{item.no_of_branches}</Text>
+            <Text style={styles.label}> Total Calls</Text>
+            <Text style={styles.value}>{item.total_calls}</Text>
           </View>
 
           <View style={styles.row}>
-            <Text style={styles.label}>📞 Unique Student Touch</Text>
-            <Text style={styles.value}>{item.students_connected}</Text>
+            <Text style={styles.label}> Unique Student Touch</Text>
+            <Text style={styles.value}>{item.unique_lead_touch}</Text>
           </View>
 
           <View style={styles.row}>
-            <Text style={styles.label}>🎯 Sales</Text>
-            <Text style={styles.value}>{item.students_sales_count}</Text>
+            <Text style={styles.label}> Conversation Duration</Text>
+            <Text style={styles.value}>{item.total_duration}</Text>
           </View>
 
           <View style={styles.row}>
-            <Text style={styles.label}>📈 CVR</Text>
-            <Text style={styles.value}>{item.cvr}</Text>
+            <Text style={styles.label}>Total Answered Calls by Parent</Text>
+            <Text style={styles.value}>{item.total_answered_calls_by_parent}</Text>
           </View>
         </View>
       </TouchableOpacity>
     </Link>
-  );
+  )
 };
-export default AgentCard;
 
 const styles = StyleSheet.create({
   card: {
@@ -59,7 +70,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     elevation: 4,
   },
-
+  
   cardTop: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -71,7 +82,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#fff",
   },
-
+  
   row: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -92,3 +103,6 @@ const styles = StyleSheet.create({
     marginVertical: 4,
   },
 })
+
+
+export default AgentCallSummary

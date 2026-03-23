@@ -20,6 +20,11 @@ export const MetricCard: React.FC<MetricCardProps> = ({
   subHeading2Value,
   logo,
 }) => {
+
+  const formatedNumber = (value : string | number) => {
+    return Math.floor(Number(value));
+  }
+
   return (
     <View style={styles.card}>
       {/* Header */}
@@ -29,7 +34,7 @@ export const MetricCard: React.FC<MetricCardProps> = ({
       </View>
 
       {/* Main Value */}
-      <Text style={styles.value}>{headingValue}</Text>
+      <Text style={styles.value}>{formatedNumber(headingValue)}</Text>
 
       {/* Divider */}
       <View style={styles.divider} />
@@ -38,12 +43,12 @@ export const MetricCard: React.FC<MetricCardProps> = ({
       <View style={styles.subRow}>
         <View>
           <Text style={styles.subLabel1}>{subHeading1}</Text>
-          <Text style={styles.subValue1}>{subHeading1Value}</Text>
+          <Text style={styles.subValue1}>{formatedNumber(subHeading1Value)}</Text>
         </View>
 
         <View>
           <Text style={styles.subLabel2}>{subHeading2}</Text>
-          <Text style={styles.subValue2}>{subHeading2Value}</Text>
+          <Text style={styles.subValue2}>{formatedNumber(subHeading2Value)}</Text>
         </View>
       </View>
     </View>
@@ -94,7 +99,7 @@ const styles = StyleSheet.create({
   divider: {
     height: 1,
     backgroundColor: "#1E1E1E",
-    marginVertical: 14,
+    marginVertical: 12,
   },
 
   subRow: {
@@ -104,24 +109,24 @@ const styles = StyleSheet.create({
 
   subLabel1: {
     color: "#ac70e4",
-    fontSize: 10,
+    fontSize: 12,
     marginBottom: 4,
   },
 
   subValue1: {
     color: "#FFFFFF",
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: "500",
   },
   subLabel2: {
     color: "#1897ff",
-    fontSize: 10,
+    fontSize: 12,
     marginBottom: 4,
   },
 
   subValue2: {
     color: "#FFFFFF",
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: "500",
   },
 });

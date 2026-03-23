@@ -1,41 +1,51 @@
-import { View, Text, StyleSheet } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
 import React from 'react'
 import { Ionicons } from '@expo/vector-icons'
-import {  AgentReportsInterface } from '@/src/Interface/InterfaceData';
+import { AgentReportsInterface } from '@/src/Interface/InterfaceData';
+import { Link } from 'expo-router';
 
 
 
 
-const AgentReports = ({ item }: {item : AgentReportsInterface}) => {
+const AgentReports = ({ item }: { item: AgentReportsInterface }) => {
   return (
-    <View style={styles.card}>
-      <View style={styles.cardTop}>
-        <Text style={styles.agentName}>{item.name}</Text>
-        {/* <Ionicons name="chevron-forward" size={20} color="#8E8E93" /> */}
-      </View>
+    <Link href={{
+      pathname: '/BranchCVR/[id]',
+      params: { id: item.branch_id }
+    }} asChild
+    >
+      <TouchableOpacity>
 
-      <View style={styles.divider} />
+        <View style={styles.card}>
+          <View style={styles.cardTop}>
+            <Text style={styles.agentName}>{item.name}</Text>
+            <Ionicons name="chevron-forward" size={20} color="#8E8E93" />
+          </View>
 
-      <View style={styles.row}>
-        <Text style={styles.label}>Students Connected</Text>
-        <Text style={styles.value}>{item.students_connected}</Text>
-      </View>
+          <View style={styles.divider} />
 
-      <View style={styles.row}>
-        <Text style={styles.label}>No'of Interested</Text>
-        <Text style={styles.value}>{item.no_of_interested}</Text>
-      </View>
+          <View style={styles.row}>
+            <Text style={styles.label}>Students Connected</Text>
+            <Text style={styles.value}>{item.students_connected}</Text>
+          </View>
 
-      <View style={styles.row}>
-        <Text style={styles.label}>No'of Call Backs</Text>
-        <Text style={styles.value}>{item.no_of_call_backs}</Text>
-      </View>
+          <View style={styles.row}>
+            <Text style={styles.label}>No'of Interested</Text>
+            <Text style={styles.value}>{item.no_of_interested}</Text>
+          </View>
 
-      <View style={styles.row}>
-        <Text style={styles.label}>Students Sales Count</Text>
-        <Text style={styles.value}>{item.students_sales_count}</Text>
-      </View>
-    </View>
+          <View style={styles.row}>
+            <Text style={styles.label}>No'of Call Backs</Text>
+            <Text style={styles.value}>{item.no_of_call_backs}</Text>
+          </View>
+
+          <View style={styles.row}>
+            <Text style={styles.label}>Students Sales Count</Text>
+            <Text style={styles.value}>{item.students_sales_count}</Text>
+          </View>
+        </View>
+      </TouchableOpacity>
+    </Link>
   )
 };
 export default AgentReports
@@ -86,4 +96,5 @@ const styles = StyleSheet.create({
     backgroundColor: "#464646",
     marginVertical: 4,
   },
+
 })

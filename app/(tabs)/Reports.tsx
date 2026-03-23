@@ -2,33 +2,32 @@ import { View, Text, useWindowDimensions } from 'react-native'
 import React, { useState } from 'react'
 import { SceneMap, TabView } from 'react-native-tab-view';
 import SegmentTabs from '@/src/components/SegmentTabs';
-import StudentsListScreen from '../Screens/StudentDetails/StudentsListScreen';
-import FollowUps from '../Screens/StudentDetails/FollowUps';
-import DailedScreen from '../Screens/StudentDetails/DailedScreen';
-import SegmentControl from '@/src/components/SegmentTabs';
+import AgentCallSummaryScreen from '../Screens/ReportsScreen/AgentCallSummaryScreen';
+import SalesScreen from '../Screens/ReportsScreen/SalesScreen';
+import CallLogsScreen from '../Screens/ReportsScreen/CallLogsScreen';
 
+const Reports = () => {
 
-const StudentDetails = () => {
   const layout = useWindowDimensions();
   const [index, setIndex] = useState(0);
 
   const [routes] = useState([
-    { key: "studentList", title: "🧑‍🎓 Student List" },
-    { key: "followup", title: "📲 Follow Ups" },
-    { key: "dailed", title: "☑️ Dailed" },
+    { key: "agentcallsummary", title: "📞 Call Summary" },
+    { key: "sales", title: "💲Sales" },
+    { key: "calllogs", title: "☎️ Call Logs" },
   ]);
 
   const renderScene = SceneMap({
-    studentList: StudentsListScreen,
-    followup: FollowUps,
-    dailed: DailedScreen,
+    agentcallsummary: AgentCallSummaryScreen,
+    sales: SalesScreen,
+    calllogs: CallLogsScreen,
   });
 
 
   return (
     <View style={{ flex: 1, backgroundColor: "#1C1C1E", }}>
 
-      <SegmentControl
+      <SegmentTabs
         routes={routes}
         index={index}
         setIndex={setIndex}
@@ -46,4 +45,4 @@ const StudentDetails = () => {
   )
 }
 
-export default StudentDetails
+export default Reports
