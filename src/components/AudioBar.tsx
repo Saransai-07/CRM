@@ -78,6 +78,27 @@ export const AudioBar = ({ uri, startTime, endTime }: any) => {
     });
   };
 
+  const WAVE_COUNT = 20;
+
+  const renderWaves = () => {
+    return Array.from({ length: WAVE_COUNT }).map((_, i) => {
+      const active = progress * WAVE_COUNT > i;
+
+      return (
+        <View
+          key={i}
+          style={[
+            styles.wave,
+            {
+              height: Math.random() * 12 + 6,
+              backgroundColor: active ? "#0A84FF" : "#555",
+            },
+          ]}
+        />
+      );
+    });
+  };
+
   // const progress = formatClock(endTime) ? Number(formatClock(startTime)) / Number(formatClock(endTime)) : 0;
 
   return (
@@ -169,4 +190,17 @@ const styles = StyleSheet.create({
     color: "#aaa",
     fontSize: 10,
   },
+
+  waveContainer: {
+  flex: 1,
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "space-between",
+  marginHorizontal: 6,
+},
+
+wave: {
+  width: 3,
+  borderRadius: 2,
+},
 });

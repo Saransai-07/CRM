@@ -348,7 +348,6 @@ const StudentDetailsScreen = () => {
             <TouchableOpacity
               style={styles.editBtn}
               onPress={() => openEditModal(item)}
-              disabled={!isValid}
             >
               <Text style={styles.editText}>✏️</Text>
             </TouchableOpacity>

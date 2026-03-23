@@ -15,7 +15,7 @@ export type Option = {
 
 type Props = {
   label?: string;
-  value: number| null;
+  value: any;
   options: Option[];
   onChange: (value: number) => void;
 };

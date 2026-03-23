@@ -2,14 +2,8 @@ import { useAuth } from "@/src/context/AuthContext";
 import { getToken } from "@/src/lib/secureStorage";
 import { router } from "expo-router";
 import { useEffect, useMemo, useRef, useState } from "react";
-// import { startCall } from "../services/callService";
-// import { pollCallStatus } from "../utils/pollCallStatus";
 
-
-
-
-
-export const startCall = async (scsNumber: string, studentContactId: string, BASE_URL: string, accessToken: string) => {
+export const startCall = async (scsNumber: string, studentContactId: number, BASE_URL: string, accessToken: string) => {
   try {
     const res = await fetch(`${BASE_URL}/call/wizklub_calling/?scsnumber=${scsNumber}&student_contact_id=${studentContactId}`, {
       method: "GET",
@@ -25,24 +19,13 @@ export const startCall = async (scsNumber: string, studentContactId: string, BAS
     if (data.status !== "success") {
       throw new Error("Call initiation failed");
     }
-
     return data.correlationId;
+
   } catch (error) {
+
     throw error;
   }
 };
-
-// export const checkCallStatus = async (correlationId: string, BASE_URL: string) => {
-//   try {
-//     const res = await fetch(
-//       `${BASE_URL}/call/is_call_end/?correlation_id=${correlationId}`
-//     );
-
-//     return await res.json();
-//   } catch (error) {
-//     throw error;
-//   }
-// };
 
 
 
@@ -88,6 +71,7 @@ export const pollCallStatus = async (
 const useCall = () => {
   const { logout, BASE_URL } = useAuth();
   const [accessToken, setAccessToken] = useState<string>('');
+  const [phoneNumber, setPhoneNumber] = useState<string>('');
 
   const [loading, setLoading] = useState(false);
   const [callEnded, setCallEnded] = useState(false);
@@ -108,9 +92,13 @@ const useCall = () => {
   useEffect(() => {
     const loadToken = async () => {
       const token = await getToken("ACCESS_TOKEN");
+      const agentNumber = await getToken('USER_PROFILE_DATA');
       if (!token) {
         await logout();
         router.replace("/(auth)/Login");
+        return;
+      }
+      if (!agentNumber) {
         return;
       }
       setAccessToken(token);
@@ -118,9 +106,9 @@ const useCall = () => {
     loadToken();
   }, []);
 
-  const initiateCall = async (scsNumber: string, studentContactId: string) => {
+  const initiateCall = async (scsNumber: string, studentContactId: number) => {
     if (!accessToken) {
-      console.warn("Token not ready");
+      console.warn("Token or phone number not ready");
       return;
     }
 
@@ -162,3 +150,4 @@ const useCall = () => {
 };
 
 export default useCall
+

@@ -85,7 +85,7 @@ const SalesComponent = ({ item }: { item: SalesReportInterface }) => {
                   <DetailRow label='Is Last Year Paid' value={item.is_last_year_paid ? "YES" : "NO" }/>     
                   <DetailRow label="On Call" value={item.on_call} />
                   <DetailRow label="Sale Date" value={item.saledate} />
-                  <DetailRow label='Agent' value={item.agent}/>
+                  <DetailRow label='Agent' value={item.final_agent}/>
                 </ScrollView>
 
               </View>

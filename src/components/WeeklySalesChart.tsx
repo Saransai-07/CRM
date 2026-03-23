@@ -7,8 +7,18 @@ interface DataItem {
   target: number;
 }
 
+interface DataItem1 {
+  label: string;
+  actual: number;
+  target: number;
+}
+
 interface Props {
   data: DataItem[];
+}
+
+interface Props1 {
+  data: DataItem1[];
 }
 
 export const WeeklySalesChart: React.FC<Props> = ({ data }) => {
@@ -63,7 +73,7 @@ export const WeeklySalesChart: React.FC<Props> = ({ data }) => {
 };
 
 
-export const WeeklyConversionChart: React.FC<Props> = ({ data }) => {
+export const WeeklyConversionChart: React.FC<Props1> = ({ data }) => {
   const maxTarget = Math.max(...data.map(d => d.target));
 
   return (
@@ -84,7 +94,7 @@ export const WeeklyConversionChart: React.FC<Props> = ({ data }) => {
 
       <View style={styles.chartRow}>
         {data.map((item, index) => {
-          const salesHeight = (item.sales / maxTarget) * 120;
+          const salesHeight = (item.actual / maxTarget) * 120;
           const targetHeight = (item.target / maxTarget) * 120;
 
           return (
