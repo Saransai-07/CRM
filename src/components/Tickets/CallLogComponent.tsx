@@ -30,33 +30,7 @@ interface CallLog {
 }
 
 export const CallLogCard = ({ item }: { item: CallLog }) => {
-  // const [sound, setSound] = useState<Audio.Sound | null>(null);
   const [playing, setPlaying] = useState(false);
-
-  // const playAudio = async () => {
-  //   try {
-  //     if (playing && sound) {
-  //       await sound.stopAsync();
-  //       setPlaying(false);
-  //       return;
-  //     }
-
-  //     const { sound: newSound } = await Audio.Sound.createAsync({
-  //       uri: item.aws_call_recording_file,
-  //     });
-
-  //     setSound(newSound);
-  //     setPlaying(true);
-
-  //     await newSound.playAsync();
-
-  //     newSound.setOnPlaybackStatusUpdate((status: any) => {
-  //       if (status.didJustFinish) setPlaying(false);
-  //     });
-  //   } catch (error) {
-  //     console.log("Audio error:", error);
-  //   }
-  // };
 
   const isAnswered = item.call_status === "Answered";
 
@@ -117,33 +91,6 @@ export const CallLogCard = ({ item }: { item: CallLog }) => {
         <Text style={styles.agentText} numberOfLines={1}>{item.agent_name}</Text>
       </View>
 
-      {/* AUDIO PLAYER */}
-      {/* <TouchableOpacity
-        style={styles.audioPlayer}
-        onPress={playAudio}
-        disabled={!item.aws_call_recording_file}
-      >
-        <View style={styles.playBtn}>
-          <Ionicons
-            name={playing ? "pause" : "play"}
-            size={18}
-            color="#fff"
-          />
-        </View>
-
-        <View style={{ flex: 1 }}>
-          <Text style={styles.audioTitle}>
-            {item.aws_call_recording_file
-              ? "Call Recording"
-              : "No Recording"}
-          </Text>
-          <Text style={styles.audioSub}>
-            {playing ? "Playing..." : "Tap to play"}
-          </Text>
-        </View>
-
-        <Ionicons name="volume-high-outline" size={18} color="#aaa" />
-      </TouchableOpacity> */}
       {item.aws_call_recording_file && (
 
       <AudioBar

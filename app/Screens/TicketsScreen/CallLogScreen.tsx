@@ -68,7 +68,7 @@ const CallLogScreen = () => {
         },
 
         ...(prevData.results || []).map((item: any) => ({
-          title: item.academic_year_name,
+          title: "2025-2026",
           type: "previous",
           data: sortByDate(item.call_logs || []),
         })),

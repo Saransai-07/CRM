@@ -16,8 +16,10 @@ import {
   ActivityIndicator,
   Platform,
   Modal,
+  KeyboardAvoidingView,
 } from "react-native";
 import DateTimePicker from '@react-native-community/datetimepicker'
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const AddTicketScreen = () => {
   const { id, scsnumber } = useLocalSearchParams();
@@ -193,7 +195,7 @@ const AddTicketScreen = () => {
       console.log("Priority Error:", error);
     }
   };
-  
+
   const onSave = async () => {
     try {
       setLoading(true);
@@ -242,142 +244,154 @@ const AddTicketScreen = () => {
     }
   };
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.content}
-      showsVerticalScrollIndicator={false}
-    >
-      <Text style={styles.title}>
-        {isEditMode ? "Update Ticket" : "Create Ticket"}
-      </Text>
-
-      <View style={styles.card}>
-        {/* Category */}
-        <View style={styles.field}>
-          <Dropdown
-            label="Category"
-            value={category}
-            options={categoryData}
-            onChange={setCategory}
-          />
-        </View>
-
-        {/* Callback DateTime */}
-        {showCallBackFielsd && (
-          <View style={styles.field}>
-            <Text style={styles.label}>Callback Time</Text>
-
-            <TouchableOpacity
-              style={styles.inputBox}
-              onPress={() => {
-                setTempDate(callBacktime ? new Date(callBacktime) : new Date());
-                setPickerMode("date");
-                setShowPickerModal(true);
-              }}
-            >
-              <Text style={styles.inputText}>
-                {callBacktime
-                  ? new Date(callBacktime).toLocaleString()
-                  : "Select date & time"}
-              </Text>
-            </TouchableOpacity>
-
-
-            <Modal
-              visible={showPickerModal}
-              transparent
-              animationType="fade"
-            >
-              <View style={styles.modalOverlay}>
-                <View style={styles.modalContent}>
-
-                  <Text style={styles.modalTitle}>
-                    {pickerMode === "date" ? "Select Date" : "Select Time"}
-                  </Text>
-
-                  <DateTimePicker
-                    value={tempDate}
-                    mode={pickerMode}
-                    display="spinner"
-                    onChange={(event, selectedDate) => {
-                      if (!selectedDate) return;
-
-                      if (pickerMode === "date") {
-                        // Step 1 → Save date, move to time
-                        setTempDate(selectedDate);
-                        setPickerMode("time");
-                      } else {
-                        // Step 2 → Combine date + time and close
-                        const finalDate = new Date(tempDate);
-                        finalDate.setHours(selectedDate.getHours());
-                        finalDate.setMinutes(selectedDate.getMinutes());
-                        setCallBackTime(finalDate.toISOString());
-                        setShowPickerModal(false);
-                      }
-                    }}
-                  />
-
-                  <TouchableOpacity
-                    onPress={() => setShowPickerModal(false)}
-                    style={styles.cancelBtn}
-                  >
-                    <Text style={styles.cancelText}>Cancel</Text>
-                  </TouchableOpacity>
-
-                </View>
-              </View>
-            </Modal>
-          </View>
-        )}
-
-        {/* Subcategory */}
-        <View style={styles.field}>
-          <Dropdown
-            label="Sub Category"
-            value={subcategory}
-            options={subCategoryData}
-            onChange={setSubcategory}
-          />
-        </View>
-
-        {/* Priority */}
-        <View style={styles.field}>
-          <Dropdown
-            label="Priority"
-            value={priority}
-            options={priorityData}
-            onChange={setPriority}
-          />
-        </View>
-
-        {/* Description */}
-        <View style={styles.field}>
-          <Text style={styles.label}>Description</Text>
-          <TextInput
-            style={styles.textArea}
-            value={description}
-            onChangeText={setDescription}
-            multiline
-            placeholder="Describe your issue..."
-            placeholderTextColor="#888"
-          />
-        </View>
-      </View>
-
-      {/* Button */}
-      <TouchableOpacity
-        style={[styles.button, !isValid && styles.disabled]}
-        onPress={onSave}
-        disabled={!isValid || loading}
-        activeOpacity={0.8}
+    <SafeAreaView style={{ flex: 1 }} edges={["bottom"]}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={90}
       >
-        {loading ? (
-          <ActivityIndicator color="#000" />
-        ) : (
-          <Text style={styles.buttonText}>Save Ticket</Text>
-        )}
-      </TouchableOpacity>
-    </ScrollView>
+        <ScrollView
+          style={styles.container}
+          contentContainerStyle={[
+            styles.content,
+            { paddingBottom: 140 } // space for glass bar + keyboard
+          ]}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps='never'
+        >
+          <Text style={styles.title}>
+            {isEditMode ? "Update Ticket" : "Create Ticket"}
+          </Text>
+
+          <View style={styles.card}>
+            {/* Category */}
+            <View style={styles.field}>
+              <Dropdown
+                label="Category"
+                value={category}
+                options={categoryData}
+                onChange={setCategory}
+              />
+            </View>
+
+            {/* Callback DateTime */}
+            {showCallBackFielsd && (
+              <View style={styles.field}>
+                <Text style={styles.label}>Callback Time</Text>
+
+                <TouchableOpacity
+                  style={styles.inputBox}
+                  onPress={() => {
+                    setTempDate(callBacktime ? new Date(callBacktime) : new Date());
+                    setPickerMode("date");
+                    setShowPickerModal(true);
+                  }}
+                >
+                  <Text style={styles.inputText}>
+                    {callBacktime
+                      ? new Date(callBacktime).toLocaleString()
+                      : "Select date & time"}
+                  </Text>
+                </TouchableOpacity>
+
+
+                <Modal
+                  visible={showPickerModal}
+                  transparent
+                  animationType="fade"
+                >
+                  <View style={styles.modalOverlay}>
+                    <View style={styles.modalContent}>
+
+                      <Text style={styles.modalTitle}>
+                        {pickerMode === "date" ? "Select Date" : "Select Time"}
+                      </Text>
+
+                      <DateTimePicker
+                        value={tempDate}
+                        mode={pickerMode}
+                        display="spinner"
+                        onChange={(event, selectedDate) => {
+                          if (!selectedDate) return;
+
+                          if (pickerMode === "date") {
+                            // Step 1 → Save date, move to time
+                            setTempDate(selectedDate);
+                            setPickerMode("time");
+                          } else {
+                            // Step 2 → Combine date + time and close
+                            const finalDate = new Date(tempDate);
+                            finalDate.setHours(selectedDate.getHours());
+                            finalDate.setMinutes(selectedDate.getMinutes());
+                            setCallBackTime(finalDate.toISOString());
+                            setShowPickerModal(false);
+                          }
+                        }}
+                      />
+
+                      <TouchableOpacity
+                        onPress={() => setShowPickerModal(false)}
+                        style={styles.cancelBtn}
+                      >
+                        <Text style={styles.cancelText}>Cancel</Text>
+                      </TouchableOpacity>
+
+                    </View>
+                  </View>
+                </Modal>
+              </View>
+            )}
+
+            {/* Subcategory */}
+            <View style={styles.field}>
+              <Dropdown
+                label="Sub Category"
+                value={subcategory}
+                options={subCategoryData}
+                onChange={setSubcategory}
+              />
+            </View>
+
+            {/* Priority */}
+            <View style={styles.field}>
+              <Dropdown
+                label="Priority"
+                value={priority}
+                options={priorityData}
+                onChange={setPriority}
+              />
+            </View>
+
+            {/* Description */}
+            <View style={styles.field}>
+              <Text style={styles.label}>Description</Text>
+              <TextInput
+                style={styles.textArea}
+                value={description}
+                onChangeText={setDescription}
+                multiline
+                placeholder="Describe your issue..."
+                placeholderTextColor="#888"
+              />
+            </View>
+          </View>
+
+          {/* Button */}
+          <TouchableOpacity
+            style={[styles.button, !isValid && styles.disabled]}
+            onPress={onSave}
+            disabled={!isValid || loading}
+            activeOpacity={0.8}
+          >
+            {loading ? (
+              <ActivityIndicator color="#000" />
+            ) : (
+              <Text style={styles.buttonText}>Save Ticket</Text>
+            )}
+          </TouchableOpacity>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 
@@ -390,7 +404,7 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 20,
-    paddingBottom: 40,
+    // paddingBottom: 40,
   },
 
   title: {

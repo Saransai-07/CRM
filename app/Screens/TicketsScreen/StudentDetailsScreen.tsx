@@ -57,6 +57,7 @@ const StudentDetailsScreen = () => {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [mobileNumber, setMobileNumber] = useState<string>('')
   const [showPhone, setShowPhone] = useState(false);
+  
   const isValid = customName && relation && customephoneNumber
 
   useEffect(() => {
@@ -213,11 +214,11 @@ const StudentDetailsScreen = () => {
   };
 
   const openEditModal = (item: any) => {
+    setModalVisible(true);
     setEditingId(item.id);
     setRelation(item.relation_type);
     setCustomName(item.name);
     setCustomPhoneNumber(item.phone_number);
-    setModalVisible(true);
   };
 
   const handleSave = async () => {
@@ -241,10 +242,12 @@ const StudentDetailsScreen = () => {
         },
         body: JSON.stringify(payload),
       });
+      // console.log(res.json())
       if (!res.ok) throw new Error("Failed to save");
       fetchstudentContact();
     } catch (err) {
       Alert.alert("Error", "Something went wrong");
+
     } finally {
     }
   };
@@ -305,7 +308,7 @@ const StudentDetailsScreen = () => {
 
         <Row label="Wizklub Paid" value={data.is_wizklub_paid ? "Yes" : "No"} />
 
-        {/* <Row label="Phone Number" value="🔒" /> */}
+        {/* <Row label="Phone Number" value="" /> */}
         <View style={styles.phoneToggleRow}>
           <Text style={stylesStatic.label}>Phone Number</Text>
 
@@ -318,15 +321,17 @@ const StudentDetailsScreen = () => {
 
         <TouchableOpacity
           onPress={() => {
+            setModalVisible(true)
             setEditingId(null);
             setRelation(null);
             setCustomName("");
             setCustomPhoneNumber("");
-            setModalVisible(true)
           }}
         >
           <Text style={styles.link}>Add Custom Phone Number ➕</Text>
         </TouchableOpacity>
+
+
         {studentContact.map((item) => (
           <View key={item.id} style={styles.phoneRow}>
 
@@ -345,7 +350,7 @@ const StudentDetailsScreen = () => {
               onPress={() => openEditModal(item)}
               disabled={!isValid}
             >
-              <Text style={styles.editText}>Edit</Text>
+              <Text style={styles.editText}>✏️</Text>
             </TouchableOpacity>
 
           </View>
@@ -433,9 +438,6 @@ const StudentDetailsScreen = () => {
                   style={styles.cancelBtn}
                   onPress={() => {
                     setModalVisible(false)
-                    setRelation(null)
-                    setCustomName("")
-                    setCustomPhoneNumber("")
                   }}
                 >
                   <Text style={styles.btnText}>Cancel</Text>

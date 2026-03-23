@@ -80,7 +80,7 @@ const TicketLogScreen = () => {
           data: logsData.results || [],
         },
         ...prevData.map((item: any) => ({
-          title: item.academic_year_name,
+          title: "2025-2026",
           type: "previous",
           data: item.logs,
         })),
@@ -126,7 +126,9 @@ const TicketLogScreen = () => {
           }
           renderSectionHeader={({ section }) => (
             <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>{section.title}</Text>
+              <Text style={styles.sectionTitle}>
+                {section.title} ({section.data.length})
+                </Text>
             </View>
           )}
           ListEmptyComponent={() => (
