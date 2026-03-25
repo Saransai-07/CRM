@@ -21,6 +21,7 @@ import useCall from './hooks/UseCall';
 const StudentInstance = () => {
   const { id, scsnumber } = useLocalSearchParams();
   const { logout, BASE_URL } = useAuth();
+  const { initiateCall, state } = useCall();
 
   const layout = useWindowDimensions();
   const [index, setIndex] = useState(0);
@@ -35,7 +36,6 @@ const StudentInstance = () => {
   const [customNumber, setCustomNumber] = useState<number | string>();
 
   const [accessToken, setAccessToken] = useState<string | null>(null);
-  const { initiateCall, state } = useCall();
   const [sheetVisible, setSheetVisible] = useState(false);
 
   const [routes] = useState([
@@ -210,18 +210,20 @@ const createStyles = (t: Theme) =>
       position: "absolute",
       bottom: -10,
       width: "100%",
+      alignItems : "center",
+      
     },
-
+    
     wrapper: {
-      // paddingHorizontal: 16,
+      width : "95%",
       paddingBottom: 6,
     },
-
+    
     glassBar: {
       flexDirection: "row",
       justifyContent: "space-around",
       alignItems: "center",
-
+      
       borderRadius: 28,
       paddingVertical: 14,
 
@@ -258,60 +260,3 @@ const createStyles = (t: Theme) =>
     },
   });
 
-
-const modalStyles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.6)",
-    justifyContent: "flex-end",
-  },
-  container: {
-    backgroundColor: "#1C1C1E",
-    padding: 20,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-  },
-  title: {
-    fontSize: 16,
-    color: "#fff",
-    fontWeight: "600",
-    marginBottom: 16,
-  },
-  option: {
-    padding: 12,
-    borderRadius: 12,
-    backgroundColor: "#2C2C2E",
-    marginBottom: 12,
-  },
-  optionText: {
-    color: "#fff",
-    fontSize: 14,
-  },
-  input: {
-    backgroundColor: "#2C2C2E",
-    borderRadius: 12,
-    padding: 12,
-    color: "#fff",
-    marginBottom: 16,
-  },
-  actions: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  cancelBtn: {
-    padding: 12,
-  },
-  cancelText: {
-    color: "#999",
-  },
-  callBtn: {
-    backgroundColor: "#4CD964",
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 12,
-  },
-  callText: {
-    color: "#000",
-    fontWeight: "600",
-  },
-});
