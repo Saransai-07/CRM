@@ -25,6 +25,12 @@ export interface DataItem {
   target: number;
 }
 
+export interface DataItem1 {
+  label: string;
+  actual: number;
+  target: number;
+}
+
 export interface TopPerformer {
   agent_id: number;
   agent_name: string;

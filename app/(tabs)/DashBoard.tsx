@@ -3,7 +3,7 @@ import { MetricCard, } from "@/src/components/MetricCard";
 import { TodayTopPerformers, TopPerformers } from "@/src/components/TopPerformers";
 import { WeeklyConversionChart, WeeklySalesChart } from "@/src/components/WeeklySalesChart";
 import { useAuth } from "@/src/context/AuthContext";
-import { AttendanceResponse, DataItem, MetricCardProps, TopPerformer, UserProfileData, } from "@/src/Interface/InterfaceData";
+import { AttendanceResponse, DataItem, DataItem1, MetricCardProps, TopPerformer, UserProfileData, } from "@/src/Interface/InterfaceData";
 import { getToken, saveToken } from "@/src/lib/secureStorage";
 import { useTheme, useThemedStyles, type Theme } from "@/src/theme";
 import { Ionicons } from "@expo/vector-icons";
@@ -34,7 +34,7 @@ const DashBoard = () => {
   const [attendance, setAttendance] = useState<AttendanceResponse | null>(null);
   const [cardsData, setCardsData] = useState<MetricCardProps[]>([]);
   const [weeklyData, setWeeklysales] = useState<DataItem[]>([]);
-  const [WeeklyConversions, setWeeklyConverstions] = useState<DataItem[]>([]);
+  const [WeeklyConversions, setWeeklyConverstions] = useState<DataItem1[]>([]);
   const [topPerformers, setTopPerformers] = useState<TopPerformer[]>([]);
   const [todayTopPerformers, setTodayTopPerformers] = useState<TopPerformer[]>([]);
   const [userProfile, setUserProfile] = useState<UserProfileData | null>(null);

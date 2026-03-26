@@ -1,6 +1,7 @@
 import { AuthProvider } from "@/src/context/AuthContext";
 import { ThemeProvider } from "@/src/theme";
 import { Stack } from "expo-router";
+import { StatusBar } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 // import { AuthProvider, useAuth } from "../context/AuthContext";
 // import RootNavigator from "./(auth)/RootNavigator";
@@ -10,6 +11,7 @@ export default function RootLayout() {
     <GestureHandlerRootView >
       <AuthProvider>
         <ThemeProvider>
+          <StatusBar barStyle={"light-content"} />
           <Stack screenOptions={{
             headerStyle: { backgroundColor: '#000000' },
             headerTintColor: '#FFFFFF',

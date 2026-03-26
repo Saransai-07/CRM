@@ -61,6 +61,11 @@ const togglePlayback = async () => {
       </View>
 
       <View style={styles.row}>
+        <Text style={styles.label}>Agent Name</Text>
+        <Text style={styles.value}>{item.agent_name}</Text>
+      </View>
+
+      <View style={styles.row}>
         <Text style={styles.label}>Call Status</Text>
         <Text style={styles.value}>{item.call_status}</Text>
       </View>

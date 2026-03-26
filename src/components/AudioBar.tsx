@@ -1,112 +1,99 @@
-import { useEffect, useRef, useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { useAudioPlayer } from "expo-audio";
 
-export const AudioBar = ({ uri, startTime, endTime }: any) => {
-  const player = useAudioPlayer(uri);
-  const playerRef = useRef(player);
+import React, { useEffect, useRef, useState } from "react";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { createAudioPlayer, AudioPlayer } from "expo-audio";
+
+type Props = {
+  uri: string;
+  call_duration_hms: string;
+};
+
+export const AudioBar = ({ uri, call_duration_hms }: Props) => {
+  const playerRef = useRef<AudioPlayer | null>(null);
 
   const [isPlaying, setIsPlaying] = useState(false);
-  const [status, setStatus] = useState<any>(null);
+  const [positionSec, setPositionSec] = useState(0);
 
-  useEffect(() => {
+  // Format time
+  const formatTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = Math.floor(seconds % 60);
+    return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+  };
+
+  // Load player
+  const loadAudio = () => {
+    if (playerRef.current) return;
+
+    const player = createAudioPlayer({ uri });
     playerRef.current = player;
 
-    const sub = player.addListener("playbackStatusUpdate", (s) => {
-      setStatus(s);
-      setIsPlaying(s.playing);
-    });
-
-    return () => {
-      try {
-        sub.remove();
-
-        // ✅ SAFE cleanup
-        if (playerRef.current) {
-          playerRef.current.pause?.();
-        }
-      } catch (e) {
-        // ignore crash safely
-      }
-    };
-  }, [player]);
-
-  const togglePlay = async () => {
-    try {
+    // Manual sync loop (expo-audio way)
+    const interval = setInterval(() => {
       if (!playerRef.current) return;
 
-      if (isPlaying) {
-        await playerRef.current.pause?.();
-      } else {
-        await playerRef.current.play?.();
+      const p = playerRef.current;
+
+      setIsPlaying(p.playing);
+      setPositionSec(p.currentTime);
+
+      // Detect finish manually
+      if (p.duration && p.currentTime >= p.duration) {
+        p.seekTo(0);
+        setIsPlaying(false);
       }
-    } catch (e) {
-      console.log("Audio error:", e);
+    }, 300);
+
+    // store interval for cleanup
+    // (player as any).__interval = interval;
+    
+  };
+
+  const handlePlayPause = () => {
+    loadAudio();
+
+    const player = playerRef.current;
+    if (!player) return;
+
+    if (player.playing) {
+      player.pause();
+    } else {
+      player.play();
     }
   };
 
-  // 🔹 Convert API times → duration (ms)
-  const getDuration = () => {
-    if (!startTime || !endTime) return 0;
+  // Cleanup
+  useEffect(() => {
+    return () => {
+      const player = playerRef.current as any;
 
-    const start = new Date(startTime).getTime();
-    const end = new Date(endTime).getTime();
+      if (player?.__interval) {
+        clearInterval(player.__interval);
+      }
 
-    return end - start; // in ms
-  };
-
-  const duration = getDuration();
-
-  // 🔹 REAL progress (based on playback)
-  const progress =
-    status?.positionMillis && duration
-      ? status.positionMillis / duration
-      : 0;
-
-  const formatTime = (millis: number = 0) => {
-    const totalSeconds = Math.floor(millis / 1000);
-    const min = Math.floor(totalSeconds / 60);
-    const sec = totalSeconds % 60;
-    return `${min}:${sec < 10 ? "0" : ""}${sec}`;
-  };
-
-  const formatClock = (date?: string) => {
-    if (!date) return "--:--";
-    return new Date(date).toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
-  // const progress = formatClock(endTime) ? Number(formatClock(startTime)) / Number(formatClock(endTime)) : 0;
+      playerRef.current = null;
+    };
+  }, []);
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity onPress={togglePlay} style={styles.playBtn}>
-        <Text style={styles.playIcon}>{isPlaying ? "⏸️" : "▶️"}</Text>
+      <TouchableOpacity onPress={handlePlayPause} style={styles.button}>
+        <Ionicons
+          name={isPlaying ? "pause" : "play"}
+          size={20}
+          color="#fff"
+        />
       </TouchableOpacity>
 
-      <View style={{ flex: 1 }}>
-        <View style={styles.row}>
-          {/* <Text style={styles.edgeTime}>{formatClock(startTime)}</Text> */}
+      <View style={styles.timeContainer}>
+        <Text style={styles.currentTime}>
+          {formatTime(positionSec)}
+        </Text>
 
-          <View style={styles.progressBg}>
-            {/* <View
-              style={[styles.progressFill, { width: `${progress * 100}%` }]}
-            /> */}
-          </View>
-
-          {/* <Text style={styles.edgeTime}>{formatClock(endTime)}</Text> */}
-        </View>
-
-        <View style={styles.timeRow}>
-          <Text style={styles.time}>
-            {formatTime(status?.positionMillis)}
-          </Text>
-          <Text style={styles.time}>
-            {formatTime(duration)}
-          </Text>
-        </View>
+        <Text style={styles.totalTime}>
+          / {call_duration_hms.slice(3)}
+        </Text>
       </View>
     </View>
   );
@@ -116,57 +103,31 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 10,
+    backgroundColor: "#1E1E1E",
+    padding: 8,
+    borderRadius: 10,
   },
-
-  playBtn: {
+  button: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: "#0A84FF",
+    backgroundColor: "#4CAF50",
     justifyContent: "center",
     alignItems: "center",
-    marginRight: 10,
   },
-
-  playIcon: {
-    color: "#fff",
-    fontSize: 16,
-  },
-
-  row: {
+  timeContainer: {
     flexDirection: "row",
+    marginLeft: 12,
     alignItems: "center",
   },
-
-  edgeTime: {
+  currentTime: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  totalTime: {
     color: "#aaa",
-    fontSize: 10,
-    width: 55,
-  },
-
-  progressBg: {
-    flex: 1,
-    height: 4,
-    backgroundColor: "#444",
-    borderRadius: 2,
-    marginHorizontal: 6,
-  },
-
-  progressFill: {
-    height: 4,
-    backgroundColor: "#0A84FF",
-    borderRadius: 2,
-  },
-
-  timeRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 4,
-  },
-
-  time: {
-    color: "#aaa",
-    fontSize: 10,
+    fontSize: 13,
+    marginLeft: 4,
   },
 });
