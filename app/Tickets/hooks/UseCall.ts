@@ -2,11 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import { getToken } from "@/src/lib/secureStorage";
 import { useAuth } from "@/src/context/AuthContext";
 import { router } from "expo-router";
-// import { startCall, pollCallStatus } from "@/src/services/callService";
 import { Alert } from "react-native";
-import startCall, { pollCallStatus } from "../services/CallServices";
+import startCall, { pollCallStatus } from "../../../src/services/CallServices";
 
-type CallState = "idle" | "calling" | "ended" | "error";
+type CallState = "idle" | "calling" | "ended" | "error" | "call";
 
 const useCall = () => {
   const { BASE_URL, logout } = useAuth();
@@ -18,13 +17,22 @@ const useCall = () => {
 
   useEffect(() => {
     const init = async () => {
-      const t = await getToken("ACCESS_TOKEN");
-      if (!t) {
-        await logout();
-        router.replace("/(auth)/Login");
-        return;
+      try {
+        const t = await getToken("ACCESS_TOKEN");
+
+        if (!t) {
+          await logout();
+          router.replace("/(auth)/Login");
+          return;
+        }
+
+        
+
+        setToken(t);
+      } catch (err) {
+        console.error("Init Error:", err);
+        Alert.alert("Error", "User data missing. Please login again.");
       }
-      setToken(t);
     };
 
     init();
@@ -38,7 +46,10 @@ const useCall = () => {
     scsNumber: string,
     studentContactId?: number
   ) => {
-    if (!token) return;
+    if (!token ) {
+      Alert.alert("Error", "Agent phone number not available");
+      return;
+    }
 
     try {
       setState("calling");
@@ -50,7 +61,7 @@ const useCall = () => {
         scsNumber,
         studentContactId ?? null,
         BASE_URL,
-        token
+        token,
       );
 
       await pollCallStatus(
@@ -58,7 +69,7 @@ const useCall = () => {
         BASE_URL,
         token,
         (ended) => {
-          if (ended) setState("ended");
+          if (ended) setState("call");
         },
         controller
       );

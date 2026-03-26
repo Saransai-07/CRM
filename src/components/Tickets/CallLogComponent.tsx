@@ -95,8 +95,7 @@ export const CallLogCard = ({ item }: { item: CallLog }) => {
 
       <AudioBar
         uri={item.aws_call_recording_file}
-        startTime={item.call_start_time_}
-        endTime={item.call_end_time_}
+        call_duration_hms={item.conversation_duration_hms}
       />
       )}
     </View>

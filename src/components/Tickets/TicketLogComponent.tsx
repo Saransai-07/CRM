@@ -130,8 +130,7 @@ export const TicketLogItem = ({ item }: { item: TicketLogInterface }) => {
                       {log.aws_call_recording_file && (
                         <AudioBar
                           uri={log.aws_call_recording_file}
-                          startTime={log.call_start_time_}
-                          endTime={log.call_end_time_}
+                          call_duration_hms={log.conversation_duration_hms}
                         />
                       )}
                     </View>
@@ -292,8 +291,7 @@ export const PreviousYearTicketLogItem = ({ item }: any) => {
                       {log.aws_call_recording_file && (
                         <AudioBar
                           uri={log.aws_call_recording_file}
-                          startTime={log.call_start_time_}
-                          endTime={log.call_end_time_}
+                          call_duration_hms={log.conversation_duration_hms}
                         />
                       )}
                     </View>

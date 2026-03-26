@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import {
   View,
@@ -10,34 +11,40 @@ import {
 
 export type Option = {
   label: string;
-  value: number  ;
+  value: number;
 };
 
 type Props = {
   label?: string;
-  value: any;
+  value: number | null;
   options: Option[];
-  onChange: (value: number) => void;
+  onChange: (value: number | null) => void;
+  allowClear?: boolean; // 👈 new
 };
 
-export default function Dropdown({ label, value, options, onChange }: Props) {
+export default function Dropdown({
+  label,
+  value,
+  options,
+  onChange,
+  allowClear = true,
+}: Props) {
   const [visible, setVisible] = useState(false);
 
   const selected = options.find((o) => o.value === value);
+
+  const data = allowClear
+    ? [{ label: "Clear selection", value: null as any }, ...options]
+    : options;
 
   return (
     <View>
       {label && <Text style={styles.label}>{label}</Text>}
 
-      <TouchableOpacity
-        style={styles.input}
-        onPress={() => setVisible(true)}
-      >
+      <TouchableOpacity style={styles.input} onPress={() => setVisible(true)}>
         <Text style={styles.valueText}>
           {selected ? selected.label : "Select"}
         </Text>
-
-        <Text style={styles.chevron}></Text>
       </TouchableOpacity>
 
       <Modal visible={visible} transparent animationType="slide">
@@ -47,10 +54,11 @@ export default function Dropdown({ label, value, options, onChange }: Props) {
           onPress={() => setVisible(false)}
         >
           <View style={styles.sheet}>
-
             <FlatList
-              data={options}
-              keyExtractor={(item) => String(item.value)}
+              data={data}
+              keyExtractor={(item, index) =>
+                item.value === null ? "clear" : String(item.value)
+              }
               renderItem={({ item }) => (
                 <TouchableOpacity
                   style={styles.option}
@@ -59,11 +67,17 @@ export default function Dropdown({ label, value, options, onChange }: Props) {
                     setVisible(false);
                   }}
                 >
-                  <Text style={styles.optionText}>{item.label}</Text>
+                  <Text
+                    style={[
+                      styles.optionText,
+                      item.value === null && { color: "#FF453A" }, // 👈 red clear
+                    ]}
+                  >
+                    {item.label}
+                  </Text>
                 </TouchableOpacity>
               )}
             />
-
           </View>
         </TouchableOpacity>
       </Modal>
@@ -72,7 +86,6 @@ export default function Dropdown({ label, value, options, onChange }: Props) {
 }
 
 const styles = StyleSheet.create({
-
   label: {
     fontSize: 13,
     color: "#8e8e93",
@@ -93,11 +106,6 @@ const styles = StyleSheet.create({
   valueText: {
     color: "#fff",
     fontSize: 16,
-  },
-
-  chevron: {
-    color: "#8e8e93",
-    fontSize: 18,
   },
 
   overlay: {
