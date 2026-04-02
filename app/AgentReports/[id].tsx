@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, ActivityIndicator, FlatList, ScrollView, RefreshControl } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { Theme, useThemedStyles } from '@/src/theme';
 import { Pagination } from '@/src/components/Pagination';
@@ -15,15 +15,18 @@ const WizklubAgentsReports = () => {
   const { logout, authState, BASE_URL } = useAuth();
   const [data, setData] = useState<AgentReportsInterface[]>([]);
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+  const [initialLoading, setInitialLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState<string>('')
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const router = useRouter();
   const styles = useThemedStyles(createStyles);
   const [refreshing, setRefreshing] = useState(false);
+  const [totalCount, setTotalCount] = useState<number>(0);
 
-
+  const pageRef = useRef(1);
+  const totalPagesRef = useRef(1);
 
   const options = React.useMemo(() => ({
     method: "GET",
@@ -46,21 +49,33 @@ const WizklubAgentsReports = () => {
     loadToken();
   }, []);
 
+  // Fetch first page when accessToken, search, or date range changes
   useEffect(() => {
     if (!accessToken) return;
-    fetchData(page, search)
-  }, [accessToken, page, search, id]);
+    const loadInitial = async () => {
+      try {
+        setInitialLoading(true);
+        setData([]);
+        pageRef.current = 1;
+        await fetchData(1, search, true);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setInitialLoading(false);
+      }
+    };
+    loadInitial();
+  }, [accessToken, search]);
 
 
 
-  const fetchData = async (pageNumber: number, search: string) => {
+  const fetchData = async (pageNumber: number, search: string, isFirstPage: boolean) => {
     try {
-      setLoading(true) 
+      setLoading(true)
       const res = await fetch(`${BASE_URL}/wizklub/wizklub_agent_branch_wise_reports/?agent=${id}&page=${pageNumber}&search=${search}`, options);
       const json = await res.json();
       setData(json.results || "");
-      setTotalPages(json.total_pages);
-      setPage(json.current_page_number);
+      setTotalCount(json.total_count || 0);
     } catch (error) {
       console.log("Error:", error);
     } finally {
@@ -69,24 +84,29 @@ const WizklubAgentsReports = () => {
   };
 
 
-  const handleNext = () => {
-    if (page < totalPages) {
-      setPage(prev => prev + 1)
-    }
-  };
-
-  const handlePrev = () => {
-    if (page > 1) {
-      setPage(prev => prev - 1)
-    }
-  };
-
   const onRefresh = async () => {
     setRefreshing(true);
     setPage(1)
-    await fetchData(page, search);
+    await fetchData(page, search, true);
     setRefreshing(false);
   };
+
+  const handleLoadMore = useCallback(async () => {
+    if (loadingMore || pageRef.current >= totalPagesRef.current) return;
+
+    const nextPage = pageRef.current + 1;
+    setLoadingMore(true);
+    await fetchData(nextPage, search, false);
+    setLoadingMore(false);
+  }, [loadingMore, search, options]);
+
+  const renderFooter = () => {
+    if (!loadingMore) return null;
+    return (
+      <ActivityIndicator style={{ marginVertical: 16 }} size="small" />
+    );
+  };
+
 
 
 
@@ -96,9 +116,24 @@ const WizklubAgentsReports = () => {
       <HeaderSearch
         title={name}
         placeholder="Search"
-        onSearchChange={(searchText) => { setSearch(searchText), setPage(1) }}
+        onSearchChange={(searchText) => { setSearch(searchText) }}
       />
-      {loading && !refreshing ? (
+
+
+      <View style={styles.dateContainer}>
+
+        {/* Total Count */}
+        <View style={styles.countContainer}>
+          <Text style={styles.countText}>
+            {totalCount} Records
+          </Text>
+        </View>
+
+      </View>
+
+
+
+      {initialLoading && !refreshing ? (
         <ActivityIndicator size='large' />
       ) : (
         <>
@@ -110,24 +145,17 @@ const WizklubAgentsReports = () => {
             contentContainerStyle={{ paddingBottom: 20 }}
             refreshing={refreshing}
             onRefresh={onRefresh}
+            onEndReached={handleLoadMore}
+            onEndReachedThreshold={0.5}
+            ListFooterComponent={renderFooter}
             ListEmptyComponent={() => (
-              <Text style={styles.emptycomponent}> ❎ No Data Found</Text>
+              <Text style={styles.emptycomponent}>❎ No agents found</Text>
             )}
+            initialNumToRender={5}
+            maxToRenderPerBatch={5}
+            windowSize={5}
+            removeClippedSubviews={true}
           />
-          <View style={styles.pagiantion}>
-            {data.length > 0 ? (
-              <Pagination
-                currentPage={page}
-                totalPages={totalPages}
-                onNext={handleNext}
-                onPrev={handlePrev}
-              />
-
-            ) : (
-              <>
-              </>
-            )}
-          </View>
         </>
       )}
     </View>
@@ -155,14 +183,36 @@ const createStyles = (t: Theme) =>
       fontWeight: "700",
       color: "#fff",
     },
-    emptycomponent :{
-      flex : 1,
-      fontSize : 20,
-      color : '#fff'
+    emptycomponent: {
+      flex: 1,
+      fontSize: 20,
+      color: '#fff'
     },
 
-    pagiantion : {
-      marginBottom : 10
+    pagiantion: {
+      marginBottom: 10
     },
+    dateContainer: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      marginBottom: 12,
+      gap: 10
+    },
+
+    countContainer: {
+      justifyContent: "center",
+      paddingHorizontal: 10,
+      paddingVertical : 10,
+      backgroundColor: "#111827",
+      borderRadius: 10,
+      borderWidth: 1,
+      borderColor: "#374151",
+    },
+
+    countText: {
+      color: "#10b981",
+      fontWeight: "700",
+    },
+
 
   });

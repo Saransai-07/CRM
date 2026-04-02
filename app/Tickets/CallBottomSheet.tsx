@@ -8,7 +8,7 @@ const CallBottomSheet = ({
   onCall,
   options,
 }: any) => {
-  const [selected, setSelected] = useState<number | null>(null);
+  const [selected, setSelected] = useState<number | null | string>(null);
 
   if (!visible) return null;
 
@@ -57,7 +57,11 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
   },
-  title: { color: "#fff", fontSize: 18, marginBottom: 10 },
+  title: { 
+    color: "#fff",
+    fontSize: 18,
+    marginBottom: 10
+  },
   row: {
     flexDirection: "row",
     justifyContent: "space-between",

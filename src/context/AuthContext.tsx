@@ -33,7 +33,8 @@ export const AuthProvider : React.FC<{children: React.ReactNode}> = ({children,}
     });
 
     const [loading, setLoading] = useState(true);
-    // const BASE_URL = "http://202.65.141.178:8025";
+    // // const BASE_URL = "http://202.65.141.178:8025";
+    // const BASE_URL = "http://10.10.8.13:8025/";
     const BASE_URL = "https://app.srichaitanyacrm.com";
 
 

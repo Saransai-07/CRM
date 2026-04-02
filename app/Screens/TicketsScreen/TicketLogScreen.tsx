@@ -14,10 +14,12 @@ import {
   PreviousYearTicketLogItem,
   TicketLogItem,
 } from "@/src/components/Tickets/TicketLogComponent";
+import { useAudioPlayerContext } from "@/src/context/AudioPlayerContext";
 
 const TicketLogScreen = () => {
   const { id } = useLocalSearchParams();
   const { logout, BASE_URL } = useAuth();
+  const { pause } = useAudioPlayerContext();
   const styles = useThemedStyles(createStyles);
 
   const [accessToken, setAccessToken] = useState<string | null>(null);
@@ -117,6 +119,8 @@ const TicketLogScreen = () => {
           showsVerticalScrollIndicator={false}
           refreshing={refreshing}
           onRefresh={onRefresh}
+          onScrollBeginDrag={pause}
+          onMomentumScrollBegin={pause}
           renderItem={({ item, section }) =>
             section.type === "current" ? (
               <TicketLogItem item={item} />
@@ -128,11 +132,11 @@ const TicketLogScreen = () => {
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>
                 {section.title} ({section.data.length})
-                </Text>
+              </Text>
             </View>
           )}
           ListEmptyComponent={() => (
-            <Text style={styles.emptyText}>❎ No Logs Found</Text>
+            <Text style={styles.emptyText}>❎ No Ticket Logs Found</Text>
           )}
         />
       )}

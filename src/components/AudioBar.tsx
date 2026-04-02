@@ -1,8 +1,7 @@
-
-import React, { useEffect, useRef, useState } from "react";
+import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { createAudioPlayer, AudioPlayer } from "expo-audio";
+import { useAudioPlayerContext } from "@/src/context/AudioPlayerContext";
 
 type Props = {
   uri: string;
@@ -10,77 +9,21 @@ type Props = {
 };
 
 export const AudioBar = ({ uri, call_duration_hms }: Props) => {
-  const playerRef = useRef<AudioPlayer | null>(null);
+  const { toggle, currentUri, isPlaying, position } = useAudioPlayerContext();
 
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [positionSec, setPositionSec] = useState(0);
+  const isActive = currentUri === uri;
 
-  // Format time
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60);
     const s = Math.floor(seconds % 60);
     return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
   };
 
-  // Load player
-  const loadAudio = () => {
-    if (playerRef.current) return;
-
-    const player = createAudioPlayer({ uri });
-    playerRef.current = player;
-
-    // Manual sync loop (expo-audio way)
-    const interval = setInterval(() => {
-      if (!playerRef.current) return;
-
-      const p = playerRef.current;
-
-      setIsPlaying(p.playing);
-      setPositionSec(p.currentTime);
-
-      // Detect finish manually
-      if (p.duration && p.currentTime >= p.duration) {
-        p.seekTo(0);
-        setIsPlaying(false);
-      }
-    }, 300);
-
-    // store interval for cleanup
-    // (player as any).__interval = interval;
-    
-  };
-
-  const handlePlayPause = () => {
-    loadAudio();
-
-    const player = playerRef.current;
-    if (!player) return;
-
-    if (player.playing) {
-      player.pause();
-    } else {
-      player.play();
-    }
-  };
-
-  // Cleanup
-  useEffect(() => {
-    return () => {
-      const player = playerRef.current as any;
-
-      if (player?.__interval) {
-        clearInterval(player.__interval);
-      }
-
-      playerRef.current = null;
-    };
-  }, []);
-
   return (
     <View style={styles.container}>
-      <TouchableOpacity onPress={handlePlayPause} style={styles.button}>
+      <TouchableOpacity onPress={() => toggle(uri)} style={styles.button}>
         <Ionicons
-          name={isPlaying ? "pause" : "play"}
+          name={isActive && isPlaying ? "pause" : "play"}
           size={20}
           color="#fff"
         />
@@ -88,7 +31,7 @@ export const AudioBar = ({ uri, call_duration_hms }: Props) => {
 
       <View style={styles.timeContainer}>
         <Text style={styles.currentTime}>
-          {formatTime(positionSec)}
+          {isActive ? formatTime(position) : "00:00"}
         </Text>
 
         <Text style={styles.totalTime}>

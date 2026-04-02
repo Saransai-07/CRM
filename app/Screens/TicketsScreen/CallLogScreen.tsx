@@ -1,4 +1,5 @@
 import { CallLogCard } from '@/src/components/Tickets/CallLogComponent';
+import { useAudioPlayerContext } from '@/src/context/AudioPlayerContext';
 import { useAuth } from '@/src/context/AuthContext';
 import { getToken } from '@/src/lib/secureStorage';
 import { Theme, useThemedStyles } from '@/src/theme';
@@ -9,6 +10,7 @@ import { ActivityIndicator, FlatList, SectionList, StyleSheet, Text, View } from
 const CallLogScreen = () => {
   const { id } = useLocalSearchParams();
   const { logout, BASE_URL } = useAuth();
+  const { pause } = useAudioPlayerContext();
   const styles = useThemedStyles(createStyles);
 
   const [accessToken, setAccessToken] = useState<string | null>(null);
@@ -109,6 +111,8 @@ const CallLogScreen = () => {
           showsVerticalScrollIndicator={false}
           refreshing={refreshing}
           onRefresh={onRefresh}
+          onScrollBeginDrag={pause}
+          onMomentumScrollBegin={pause}
           renderItem={({ item }) => <CallLogCard item={item} />}
           renderSectionHeader={({ section }) => (
             <View style={styles.sectionHeader}>

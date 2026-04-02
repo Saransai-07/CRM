@@ -1,7 +1,8 @@
 import React from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
-import { ActivityRing } from "./ActivityRing";
+// import { ActivityRing } from "./ActivityRing";
 import { useThemedStyles, type Theme } from "@/src/theme";
+import ActivityRing from "./ActivityRing";
 
 interface DayItem {
   label: string; // Mon, Tue

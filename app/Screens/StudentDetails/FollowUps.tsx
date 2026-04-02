@@ -1,23 +1,21 @@
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native'
-import React, { useEffect, useState } from 'react'
-import { getToken } from '@/src/lib/secureStorage';
-import { router } from 'expo-router';
-import { Theme, useThemedStyles } from '@/src/theme';
-import { FollowUpInterface } from '@/src/Interface/InterfaceData';
-import { useAuth } from '@/src/context/AuthContext';
-import DateRangeModal from '@/src/components/DoubleDatePicker';
-import { Pagination } from '@/src/components/Pagination';
-import HeaderSearch from '@/src/components/ListHeader';
 import FollowUpComponent from '@/src/components/StudentsDetails/FollowUpComponent';
+import DateRangeModal from '@/src/components/DoubleDatePicker';
+import HeaderSearch from '@/src/components/ListHeader';
+import { useAuth } from '@/src/context/AuthContext';
+import { FollowUpInterface } from '@/src/Interface/InterfaceData';
+import { getToken } from '@/src/lib/secureStorage';
+import { Theme, useThemedStyles } from '@/src/theme';
+import { router } from 'expo-router';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native';
 
 const FollowUps = () => {
 
   const { logout, authState, BASE_URL } = useAuth();
   const [data, setData] = useState<FollowUpInterface[]>([]);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [loading, setLoading] = useState(false);
-  const [search, setSearch] = useState<string>('')
+  const [initialLoading, setInitialLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [search, setSearch] = useState<string>('');
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const styles = useThemedStyles(createStyles);
@@ -26,8 +24,8 @@ const FollowUps = () => {
   const [startDate, setStartDate] = useState<string | null>(null);
   const [endDate, setEndDate] = useState<string | null>(null);
 
-
-
+  const pageRef = useRef(1);
+  const totalPagesRef = useRef(1);
 
   const options = React.useMemo(() => ({
     method: "GET",
@@ -52,46 +50,64 @@ const FollowUps = () => {
 
   useEffect(() => {
     if (!accessToken) return;
-    fetchData(page, search)
-  }, [accessToken, page, search, startDate, endDate]);
+    const loadInitial = async () => {
+      try {
+        setInitialLoading(true);
+        setData([]);
+        pageRef.current = 1;
+        await fetchData(1, search, true);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setInitialLoading(false);
+      }
+    };
+    loadInitial();
+  }, [accessToken, search, startDate, endDate]);
 
-  const onRefresh = async () => {
-    setRefreshing(true);
-    setPage(1)
-    await fetchData(1, search);
-    setRefreshing(false);
-  };
-
-  const fetchData = async (pageNumber: number, search: string) => {
-
+  const fetchData = async (pageNumber: number, searchText: string, isFirstPage: boolean) => {
     try {
-      setLoading(true)
-      const res = await fetch(`${BASE_URL}/wizklub/agent_call_backs/?page=${pageNumber}&search=${search}`, options);
+      const res = await fetch(`${BASE_URL}/wizklub/agent_call_backs/?page=${pageNumber}&search=${searchText}`, options);
       if (!res.ok) {
-        setData([])
+        if (isFirstPage) setData([]);
         return;
       }
       const json = await res.json();
-      setData(json.results);
-      setTotalPages(json.total_pages);
-      setPage(json.current_page_number);
+      
+      if (isFirstPage) {
+        setData(json.results);
+      } else {
+        setData(prev => [...prev, ...json.results]);
+      }
+      totalPagesRef.current = json.total_pages;
+      pageRef.current = json.current_page_number;
     } catch (error) {
       console.log("Error:", error);
-    } finally {
-      setLoading(false)
     }
   };
 
-  const handleNext = () => {
-    if (page < totalPages) {
-      setPage(prev => prev + 1)
-    }
+  const onRefresh = async () => {
+    setRefreshing(true);
+    pageRef.current = 1;
+    setData([]);
+    await fetchData(1, search, true);
+    setRefreshing(false);
   };
 
-  const handlePrev = () => {
-    if (page > 1) {
-      setPage(prev => prev - 1)
-    }
+  const handleLoadMore = useCallback(async () => {
+    if (loadingMore || pageRef.current >= totalPagesRef.current) return;
+
+    const nextPage = pageRef.current + 1;
+    setLoadingMore(true);
+    await fetchData(nextPage, search, false);
+    setLoadingMore(false);
+  }, [loadingMore, search, options]);
+
+  const renderFooter = () => {
+    if (!loadingMore) return null;
+    return (
+      <ActivityIndicator style={{ marginVertical: 16 }} size="small" />
+    );
   };
 
   return (
@@ -100,7 +116,7 @@ const FollowUps = () => {
       <HeaderSearch
         title="Follow Ups"
         placeholder="Search..."
-        onSearchChange={(searchText) => { setSearch(searchText), setPage(1) }}
+        onSearchChange={(searchText) => { setSearch(searchText) }}
       />
       {/* 
       <View style={styles.dateContainer}>
@@ -118,35 +134,30 @@ const FollowUps = () => {
       </View> */}
 
 
-      {loading && !refreshing ? (
+      {initialLoading && !refreshing ? (
         <ActivityIndicator size='large' />
       ) : (
-        <>
-          <FlatList
-            data={data}
-            keyExtractor={(item, index) => `${item.student}-${index}`}
-            renderItem={({ item }) => (
-              <FollowUpComponent item={item} />
-            )}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: 20 }}
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            ListEmptyComponent={() => (
-              <Text style={styles.emptycomponent}>❎ No Follow ups found</Text>
-            )}
-            initialNumToRender={10}
-            maxToRenderPerBatch={10}
-            windowSize={5}
-            removeClippedSubviews={true}
-          />
-          <Pagination
-            currentPage={page}
-            totalPages={totalPages}
-            onNext={handleNext}
-            onPrev={handlePrev}
-          />
-        </>
+        <FlatList
+          data={data}
+          keyExtractor={(item, index) => `${item.student}-${index}`}
+          renderItem={({ item }) => (
+            <FollowUpComponent item={item} />
+          )}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 20 }}
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          onEndReached={handleLoadMore}
+          onEndReachedThreshold={0.5}
+          ListFooterComponent={renderFooter}
+          ListEmptyComponent={() => (
+            <Text style={styles.emptycomponent}>❎ No Follow ups found</Text>
+          )}
+          initialNumToRender={10}
+          maxToRenderPerBatch={10}
+          windowSize={5}
+          removeClippedSubviews={true}
+        />
       )}
       <DateRangeModal
         visible={dateModalVisible}
@@ -154,7 +165,6 @@ const FollowUps = () => {
         onApply={(start, end) => {
           setStartDate(start);
           setEndDate(end);
-          setPage(1);
         }}
       />
     </View>

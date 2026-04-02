@@ -29,7 +29,7 @@
         "android.permission.MODIFY_AUDIO_SETTINGS",
         "INTERNET"
       ],
-      "package": "com.saran_sai.CRM"
+      "package": "com.srichaitanya.CRM"
     },
     "web": {
       "output": "static",

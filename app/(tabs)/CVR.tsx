@@ -1,48 +1,99 @@
-import React, { useState } from "react";
-import { View, useWindowDimensions } from "react-native";
-import { TabView, SceneMap } from "react-native-tab-view";
+import React from "react";
+import { View, Text, StyleSheet } from "react-native";
+import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 
-import SegmentTabs from "@/src/components/SegmentTabs";
-import CVRReports from "../Screens/CVRReports";
-import AgentInputs from "../Screens/AgentInputs";
-import BranchCVR from "../Screens/BranchCVR";
+import AgentInputs from "../Screens/Inputs&CVR/AgentInputs";
+import BranchCVR from "../Screens/Inputs&CVR/BranchCVR";
+import CVRReports from "../Screens/Inputs&CVR/CVRReports";
+
+const Tab = createMaterialTopTabNavigator();
 
 export default function AgentsScreen() {
-
-  const layout = useWindowDimensions();
-
-  const [index, setIndex] = useState(0);
-
-  const [routes] = useState([
-    { key: "cvr", title: "CVR" },
-    { key: "agentInputs", title: "Agent Inputs" },
-    { key: "branchCvr", title: "Branch CVR" },
-  ]);
-
-  const renderScene = SceneMap({
-    cvr: CVRReports,
-    agentInputs: AgentInputs,
-    branchCvr: BranchCVR,
-  });
+  const routes = [
+    {
+      name: "cvr",
+      title: "CVR",
+      component: CVRReports,
+    },
+    {
+      name: "agentInputs",
+      title: "Agent Inputs",
+      component: AgentInputs,
+    },
+    {
+      name: "branchCvr",
+      title: "Branch CVR",
+      component: BranchCVR,
+    },
+  ];
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#1C1C1E", }}>
-
-      <SegmentTabs
-        routes={routes}
-        index={index}
-        setIndex={setIndex}
-      />
-
-      <TabView
-        navigationState={{ index, routes }}
-        renderScene={renderScene}
-        onIndexChange={setIndex}
-        initialLayout={{ width: layout.width }}
-        swipeEnabled
-        renderTabBar={() => null}
-      />
-
+    <View style={{ flex: 1, backgroundColor: "#1C1C1E" }}>
+      <Tab.Navigator
+        screenOptions={{
+          lazy: true,
+          lazyPreloadDistance: 1,
+          swipeEnabled: true,
+          tabBarStyle: styles.tabBar,
+          tabBarIndicatorStyle: styles.indicator,
+          tabBarItemStyle: styles.tabItem,
+          tabBarActiveTintColor: "#000",   
+          tabBarInactiveTintColor: "#fff", 
+          tabBarPressColor: "transparent",
+          tabBarPressOpacity: 1,
+        }}
+      >
+        {routes.map((route) => (
+          <Tab.Screen
+            key={route.name}
+            name={route.name}
+            component={route.component}
+            options={{
+              tabBarLabel: ({ color }) => (
+                <TabLabel label={route.title} color={color} />
+              ),
+            }}
+          />
+        ))}
+      </Tab.Navigator>
     </View>
   );
-}
+};
+
+const TabLabel = ({ label, color }: any) => {
+  return (
+    <View style={styles.labelContainer}>
+      <Text style={[styles.labelText, { color }]}>{label}</Text>
+    </View>
+  );
+};
+
+
+const styles = StyleSheet.create({
+  tabBar: {
+    backgroundColor: "#2C2C2E",
+    margin: 6,
+    borderRadius: 12,
+    elevation: 0,
+  },
+
+  tabItem: {
+    padding: 0,
+  },
+
+  indicator: {
+    backgroundColor: "#00ff6a",
+    height: "85%",
+    margin: 4,
+    borderRadius: 10,
+  },
+
+  labelContainer: {
+    alignItems: "center",
+  },
+
+  labelText: {
+    fontSize: 14,
+    fontWeight: "600",
+  },
+});

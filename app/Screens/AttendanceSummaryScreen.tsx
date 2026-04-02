@@ -2,12 +2,15 @@ import React, { useState } from "react";
 import { View, Text, ScrollView, StyleSheet, Pressable } from "react-native";
 import { useThemedStyles, type Theme } from "@/src/theme";
 import { WeekDateFilter } from "@/src/components/WeekDateFilter";
-import { AttendanceActivityCard } from "@/src/components/AttendanceActivityCard";
-import { ActivityRing } from "@/src/components/ActivityRing";
+// import { AttendanceActivityCard } from "@/src/components/AttendanceActivityCard";
+// import { ActivityRing } from "@/src/components/ActivityRing";
 import { router } from "expo-router";
 import { AntDesign } from "@expo/vector-icons";
 import { BackButton } from "@/src/components/BackButton";
-import { IOSDatePicker } from "@/src/components/Datepicker";
+// import { IOSDatePicker } from "@/src/components/Datepicker";
+import { AttendanceActivityCard } from "@/src/components/DashBoard/AttendanceActivityCard";
+import ActivityRing from "@/src/components/ActivityRing";
+import { CrossPlatformDatePicker } from "@/src/components/Datepicker";
 
 const MOCK_WEEK = [
   { label: "Mon", date: "2024-04-29", progress: 0.7 },
@@ -39,17 +42,17 @@ export default function AttendanceSummaryScreen() {
             <BackButton />
             <Text style={styles.title}>Summary</Text>
         </View>
-        <IOSDatePicker
+        <CrossPlatformDatePicker
           value={selectedDate}
-          onChange={(date) => setSelectedDate(date)}
+          onChange={(date : any) => setSelectedDate(date)}
         />
 
-      {/* Week Filter */}
+      {/* Week Filter
       <WeekDateFilter
         days={MOCK_WEEK}
         selectedIndex={selectedDay}
         onSelect={setSelectedDay}
-      />
+      /> */}
 
       {/* Activity Card */}
       <AttendanceActivityCard

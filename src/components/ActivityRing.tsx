@@ -1,49 +1,68 @@
-import { View } from "react-native";
+import React from "react";
+import { View, Text } from "react-native";
 import Svg, { Circle } from "react-native-svg";
-import { useTheme } from "@/src/theme";
 
-interface Props {
+type Props = {
   size?: number;
   strokeWidth?: number;
   progress: number; // 0 → 1
-}
+  label?: string;
+};
 
-export const ActivityRing = ({
-  size = 90,
+const ActivityRing = ({
+  size = 120,
   strokeWidth = 12,
   progress,
+  label,
 }: Props) => {
-  const theme = useTheme();
+
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference * (1 - progress);
+  const strokeDashoffset =  circumference - circumference * progress;
 
   return (
-    <Svg width={size} height={size}>
-      {/* Background ring */}
-      <Circle
-        stroke={theme.colors.surfaceHighlight}
-        cx={size / 2}
-        cy={size / 2}
-        r={radius}
-        strokeWidth={strokeWidth}
-        fill="none"
-      />
+    <View style={{ alignItems: "center", justifyContent: "center" }}>
+      <Svg width={size} height={size}>
+        {/* Background */}
+        <Circle
+          stroke="#ff0000"
+          fill="none"
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          strokeWidth={strokeWidth}
+        />
 
-      {/* Progress ring */}
-      <Circle
-        stroke={theme.colors.primary}
-        cx={size / 2}
-        cy={size / 2}
-        r={radius}
-        strokeWidth={strokeWidth}
-        fill="none"
-        strokeDasharray={circumference}
-        strokeDashoffset={strokeDashoffset}
-        strokeLinecap="round"
-        rotation="-90"
-        origin={`${size / 2}, ${size / 2}`}
-      />
-    </Svg>
+        {/* Progress */}
+        <Circle
+          stroke="#4CAF50"
+          fill="none"
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          strokeWidth={strokeWidth}
+          strokeDasharray={`${circumference}`}
+          strokeDashoffset={strokeDashoffset}
+          strokeLinecap="round"
+          rotation="-90"
+          origin={`${size / 2}, ${size / 2}`}
+        />
+      </Svg>
+
+      {/* Center Text */}
+      <View
+        style={{
+          position: "absolute",
+          alignItems: "center",
+        }}
+      >
+        <Text style={{ fontSize: 18, fontWeight: "bold", color: "#fff"}}>
+          {(progress * 100).toFixed(0)}%
+        </Text>
+        {label && <Text style={{color : "#dad6d6"}}>{label}</Text>}
+      </View>
+    </View>
   );
 };
+
+export default ActivityRing;

@@ -1,9 +1,13 @@
-import { AttendanceActivityCard } from "@/src/components/AttendanceActivityCard";
-import { MetricCard, } from "@/src/components/MetricCard";
-import { TodayTopPerformers, TopPerformers } from "@/src/components/TopPerformers";
-import { WeeklyConversionChart, WeeklySalesChart } from "@/src/components/WeeklySalesChart";
+import { AttendanceActivityCard } from "@/src/components/DashBoard/AttendanceActivityCard";
+import BranchScreen from "@/src/components/DashBoard/BranchSales";
+import { DashboardCards } from "@/src/components/DashBoard/MetricCard";
+import Performance from "@/src/components/DashBoard/Performance";
+import SalesRankGroupCard from "@/src/components/DashBoard/SalesRankGroup";
+import TodaySalesScreen from "@/src/components/DashBoard/TodaySales";
+import { TodayTopPerformers, TopPerformers } from "@/src/components/DashBoard/TopPerformers";
+import { WeeklyConversionChart, WeeklySalesChart } from "@/src/components/DashBoard/WeeklySalesChart";
 import { useAuth } from "@/src/context/AuthContext";
-import { AttendanceResponse, DataItem, DataItem1, MetricCardProps, TopPerformer, UserProfileData, } from "@/src/Interface/InterfaceData";
+import { AttendanceResponse, DataItem, DataItem1, MetricCardProps,  PerformanceInterface,  SalesRankGroup, TopPerformer, UserProfileData, } from "@/src/Interface/InterfaceData";
 import { getToken, saveToken } from "@/src/lib/secureStorage";
 import { useTheme, useThemedStyles, type Theme } from "@/src/theme";
 import { Ionicons } from "@expo/vector-icons";
@@ -20,7 +24,9 @@ import {
   TouchableOpacity,
   View,
   Image,
+  FlatList,
 } from "react-native";
+
 
 const DashBoard = () => {
   const router = useRouter();
@@ -38,6 +44,8 @@ const DashBoard = () => {
   const [topPerformers, setTopPerformers] = useState<TopPerformer[]>([]);
   const [todayTopPerformers, setTodayTopPerformers] = useState<TopPerformer[]>([]);
   const [userProfile, setUserProfile] = useState<UserProfileData | null>(null);
+
+  const today = new Date();
 
   const profileImageUri = userProfile?.photo
     ? `${BASE_URL}/${userProfile.photo}`
@@ -124,7 +132,7 @@ const DashBoard = () => {
   //  Cards Data 
   const fetchCardsData = async () => {
     try {
-      const response = await fetch(`${BASE_URL}/new_dashboards/dashboard_cards/`, options);
+      const response = await fetch(`${BASE_URL}/new_dashboards/get_dashboards_cards_data/`, options);
       const data = await response.json();
 
       if (!response.ok) {
@@ -141,6 +149,7 @@ const DashBoard = () => {
       Alert.alert("ERROR", error.message || "Cards Data not shown");
     }
   };
+
 
   //  Weekly Sales 
   const fetchWeeklySales = async () => {
@@ -184,6 +193,7 @@ const DashBoard = () => {
     }
   };
 
+
   //  Top Performers 
   const fetchOverallTopPerformers = async () => {
     try {
@@ -225,6 +235,7 @@ const DashBoard = () => {
       Alert.alert("ERROR", error.message || " Weekly sales Data not shown");
     }
   };
+
 
 
   // User Profile 
@@ -301,6 +312,20 @@ const DashBoard = () => {
         }
       >
         <View>
+          <DashboardCards data={cardsData} />
+        </View>
+
+        <View style={{ paddingTop: 20 }}>
+          <TouchableOpacity onPress={() => router.push('/(tabs)/Reports')}>
+            <TodaySalesScreen />
+          </TouchableOpacity>
+        </View>
+
+        <View style={{ paddingTop : 10}}>
+          <Performance />
+        </View>
+
+        <View style={{ paddingTop: 12 }}>
           {attendance?.is_admin && (
             <AttendanceActivityCard
               total_agents={attendance.total_agents}
@@ -312,22 +337,6 @@ const DashBoard = () => {
           )}
         </View>
 
-        <View style={styles.card1}>
-          {cardsData.length > 0 && (
-            cardsData.map((item: any) => (
-              <MetricCard
-                key={item.id}
-                heading={item.heading}
-                headingValue={item.heading_value || 0}
-                subHeading1={item.sub_heading_1}
-                subHeading1Value={item.sub_heading_1_value || 0}
-                subHeading2={item.sub_heading_2}
-                subHeading2Value={item.sub_heading_2_value || 0}
-                logo={item.logo}
-              />
-            )))}
-        </View>
-
         <View>
           <WeeklySalesChart data={weeklyData} />
         </View>
@@ -335,6 +344,16 @@ const DashBoard = () => {
         <View>
           <WeeklyConversionChart data={WeeklyConversions} />
         </View>
+
+
+        <View style={{ paddingTop: 10 }}>
+          <SalesRankGroupCard />
+        </View>
+
+        <View style={{ paddingTop: 10 }}>
+          <BranchScreen />
+        </View>
+
 
         <View>
           <TodayTopPerformers
@@ -422,6 +441,7 @@ const createStyles = (t: Theme) =>
       marginBottom: 24,
       borderWidth: 1,
       borderColor: t.colors.border,
+
     },
     cardLabel: {
       ...t.typography.footnote,

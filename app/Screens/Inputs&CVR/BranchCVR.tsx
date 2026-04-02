@@ -1,31 +1,28 @@
-import DailedComponent from '@/src/components/StudentsDetails/DailedComponent';
-import DateRangeModal from '@/src/components/DoubleDatePicker';
+import BranchCVRComponent from '@/src/components/CVR/BranchCVRComponent';
 import HeaderSearch from '@/src/components/ListHeader';
 import { useAuth } from '@/src/context/AuthContext';
-import { DailedInterface } from '@/src/Interface/InterfaceData';
+import { BranchCVRInterface } from '@/src/Interface/InterfaceData';
 import { getToken } from '@/src/lib/secureStorage';
 import { Theme, useThemedStyles } from '@/src/theme';
 import { router } from 'expo-router';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-const DailedScreen = () => {
-
+const BranchCVR = () => {
   const { logout, authState, BASE_URL } = useAuth();
-  const [data, setData] = useState<DailedInterface[]>([]);
+  const [data, setData] = useState<BranchCVRInterface[]>([]);
   const [initialLoading, setInitialLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [search, setSearch] = useState<string>('');
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
-  const styles = useThemedStyles(createStyles);
+  const [totalCount, setTotalCount] = useState<number>(0);
 
-  const [dateModalVisible, setDateModalVisible] = useState(false);
-  const [startDate, setStartDate] = useState<string | null>(null);
-  const [endDate, setEndDate] = useState<string | null>(null);
 
   const pageRef = useRef(1);
   const totalPagesRef = useRef(1);
+
+  const styles = useThemedStyles(createStyles);
 
   const options = React.useMemo(() => ({
     method: "GET",
@@ -48,6 +45,7 @@ const DailedScreen = () => {
     loadToken();
   }, []);
 
+  // Fetch first page when accessToken or search changes
   useEffect(() => {
     if (!accessToken) return;
     const loadInitial = async () => {
@@ -63,19 +61,23 @@ const DailedScreen = () => {
       }
     };
     loadInitial();
-  }, [accessToken, search, startDate, endDate]);
+  }, [accessToken, search]);
 
   const fetchData = async (pageNumber: number, searchText: string, isFirstPage: boolean) => {
     try {
-      const res = await fetch(`${BASE_URL}/students/wizklub_completed_student/?page=${pageNumber}&search=${searchText}`, options);
+      const res = await fetch(
+        `${BASE_URL}/wizklubcvr/branch_cvr/?page=${pageNumber}&search=${searchText}&from_date=&to_date=/`,
+        options
+      );
       if (!res.ok) {
         if (isFirstPage) setData([]);
         return;
       }
       const json = await res.json();
-      
+
       if (isFirstPage) {
         setData(json.results);
+        setTotalCount(json.total_count || 0);
       } else {
         setData(prev => [...prev, ...json.results]);
       }
@@ -114,24 +116,21 @@ const DailedScreen = () => {
     <View style={styles.container}>
 
       <HeaderSearch
-        title="Dailed"
-        placeholder="Search..."
+        title="📊 Branch CVR"
+        placeholder="Search agents..."
         onSearchChange={(searchText) => { setSearch(searchText) }}
       />
-      {/* 
-      <View style={styles.dateContainer}>
 
-        <TouchableOpacity
-          style={styles.dateButton}
-          onPress={() => setDateModalVisible(true)}
-        >
-          <Text style={styles.dateText}>
-            {startDate && endDate
-              ? `📅  ${startDate} → ${endDate}`
-              : "📅  Select Date Range"}
+
+      <View style={styles.TotalContainer}>
+        {/* Total Count */}
+        <View style={styles.countContainer}>
+          <Text style={styles.countText}>
+            {totalCount} Records
           </Text>
-        </TouchableOpacity>
-      </View> */}
+        </View>
+
+      </View>
 
 
       {initialLoading && !refreshing ? (
@@ -139,10 +138,8 @@ const DailedScreen = () => {
       ) : (
         <FlatList
           data={data}
-          keyExtractor={(item, index) => `${item.student}-${index}`}
-          renderItem={({ item }) => (
-            <DailedComponent item={item} />
-          )}
+          keyExtractor={(item) => item.branch_id.toString()}
+          renderItem={({ item }) => <BranchCVRComponent item={item} />}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 20 }}
           refreshing={refreshing}
@@ -151,27 +148,14 @@ const DailedScreen = () => {
           onEndReachedThreshold={0.5}
           ListFooterComponent={renderFooter}
           ListEmptyComponent={() => (
-            <Text style={styles.emptycomponent}>❎ No Dailed found</Text>
+            <Text style={styles.emptycomponent}>❎ No Branches found</Text>
           )}
-          initialNumToRender={10}
-          maxToRenderPerBatch={10}
-          windowSize={5}
-          removeClippedSubviews={true}
         />
       )}
-      <DateRangeModal
-        visible={dateModalVisible}
-        onClose={() => setDateModalVisible(false)}
-        onApply={(start, end) => {
-          setStartDate(start);
-          setEndDate(end);
-        }}
-      />
+
     </View>
   )
-}
-
-export default DailedScreen
+};
 
 const createStyles = (t: Theme) =>
   StyleSheet.create({
@@ -196,27 +180,42 @@ const createStyles = (t: Theme) =>
       fontSize: 20,
       color: '#fff'
     },
-    dateContainer: {
+
+    TotalContainer: {
       flexDirection: "row",
-      justifyContent: "space-between",
+      justifyContent: "flex-start",
       marginBottom: 12,
       gap: 10
     },
-
-    dateButton: {
-      flex: 1,
-      backgroundColor: "#1f2937",
+    countContainer: {
+      justifyContent: "center",
       paddingVertical: 10,
       paddingHorizontal: 12,
+      backgroundColor: "#111827",
       borderRadius: 10,
       borderWidth: 1,
-      borderColor: "#374151"
+      borderColor: "#374151",
+    },
+    countText: {
+      color: "#10b981",
+      fontWeight: "700",
     },
 
-    dateText: {
+    filterButton: {
+      justifyContent: "center",
+      alignItems: "center",
+      paddingHorizontal: 12,
+      backgroundColor: "#1f2937",
+      borderRadius: 10,
+      borderWidth: 1,
+      borderColor: "#374151",
+    },
+
+    filterText: {
       color: "#fff",
-      fontWeight: "500",
-      textAlign: "center"
+      fontSize: 16,
     },
 
   });
+
+export default BranchCVR
