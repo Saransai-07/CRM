@@ -21,8 +21,6 @@ const BranchCVRScreen = () => {
   const styles = useThemedStyles(createStyles);
   const [refreshing, setRefreshing] = useState(false);
 
-
-
   const options = React.useMemo(() => ({
     method: "GET",
     headers: {

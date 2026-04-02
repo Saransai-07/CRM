@@ -30,7 +30,6 @@ interface CallLog {
 }
 
 export const CallLogCard = ({ item }: { item: CallLog }) => {
-  const [playing, setPlaying] = useState(false);
 
   const isAnswered = item.call_status === "Answered";
 
@@ -155,6 +154,7 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 15,
     fontWeight: "600",
+    maxWidth : 170,
   },
 
   scs: {

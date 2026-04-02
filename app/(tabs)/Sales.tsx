@@ -1,49 +1,100 @@
-import { View, Text, useWindowDimensions } from 'react-native'
-import React, { useState } from 'react'
-import { SceneMap, TabView } from 'react-native-tab-view';
-import SegmentTabs from '@/src/components/SegmentTabs';
-import StudentsListScreen from '../Screens/StudentDetails/StudentsListScreen';
-import FollowUps from '../Screens/StudentDetails/FollowUps';
-import DailedScreen from '../Screens/StudentDetails/DailedScreen';
-import SegmentControl from '@/src/components/SegmentTabs';
 
+import React from "react";
+import { View, Text, StyleSheet } from "react-native";
+import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 
-const StudentDetails = () => {
-  const layout = useWindowDimensions();
-  const [index, setIndex] = useState(0);
+import DailedScreen from "../Screens/StudentDetails/DailedScreen";
+import FollowUps from "../Screens/StudentDetails/FollowUps";
+import StudentsListScreen from "../Screens/StudentDetails/StudentsListScreen";
 
-  const [routes] = useState([
-    { key: "studentList", title: "🧑‍🎓 Student List" },
-    { key: "followup", title: "📲 Follow Ups" },
-    { key: "dailed", title: "☑️ Dailed" },
-  ]);
+const Tab = createMaterialTopTabNavigator();
 
-  const renderScene = SceneMap({
-    studentList: StudentsListScreen,
-    followup: FollowUps,
-    dailed: DailedScreen,
-  });
-
+export default function StudentDetails() {
+  const routes = [
+    {
+      name: "studentList",
+      title: "🧑‍🎓 Student List",
+      component: StudentsListScreen,
+    },
+    {
+      name: "followup",
+      title: "📲 Follow Ups",
+      component: FollowUps,
+    },
+    {
+      name: "dailed",
+      title: "☑️ Dailed",
+      component: DailedScreen,
+    },
+  ];
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#1C1C1E", }}>
-
-      <SegmentControl
-        routes={routes}
-        index={index}
-        setIndex={setIndex}
-      />
-      <TabView
-        navigationState={{ index, routes }}
-        renderScene={renderScene}
-        onIndexChange={setIndex}
-        initialLayout={{ width: layout.width }}
-        swipeEnabled
-        renderTabBar={() => null}
-      />
-
+    <View style={{ flex: 1, backgroundColor: "#1C1C1E" }}>
+      <Tab.Navigator
+        screenOptions={{
+          lazy: true,
+          lazyPreloadDistance: 1,
+          swipeEnabled: true,
+          tabBarStyle: styles.tabBar,
+          tabBarIndicatorStyle: styles.indicator,
+          tabBarItemStyle: styles.tabItem,
+          tabBarActiveTintColor: "#000",   
+          tabBarInactiveTintColor: "#fff",
+          tabBarPressColor: "transparent",
+          tabBarPressOpacity: 1,
+        }}
+      >
+        {routes.map((route) => (
+          <Tab.Screen
+            key={route.name}
+            name={route.name}
+            component={route.component}
+            options={{
+              tabBarLabel: ({ color }) => (
+                <TabLabel label={route.title} color={color} />
+              ),
+            }}
+          />
+        ))}
+      </Tab.Navigator>
     </View>
-  )
-}
+  );
+};
 
-export default StudentDetails
+const TabLabel = ({ label, color }: any) => {
+  return (
+    <View style={styles.labelContainer}>
+      <Text style={[styles.labelText, { color }]}>{label}</Text>
+    </View>
+  );
+};
+
+
+const styles = StyleSheet.create({
+  tabBar: {
+    backgroundColor: "#2C2C2E",
+    margin: 6,
+    borderRadius: 12,
+    elevation: 0,
+  },
+
+  tabItem: {
+    padding: 0,
+  },
+
+  indicator: {
+    backgroundColor: "#00ff6a",
+    height: "85%",
+    margin: 4,
+    borderRadius: 10,
+  },
+
+  labelContainer: {
+    alignItems: "center",
+  },
+
+  labelText: {
+    fontSize: 14,
+    fontWeight: "600",
+  },
+});

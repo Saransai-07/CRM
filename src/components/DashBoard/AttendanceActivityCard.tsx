@@ -1,7 +1,8 @@
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import { useThemedStyles, type Theme } from "@/src/theme";
-import { ActivityRing } from "./ActivityRing";
 import { useRouter } from "expo-router";
+import ActivityRing from "../ActivityRing";
+// import { ActivityRing } from "../ActivityRing";
 
 interface AttendanceData {
   total_agents: number;
@@ -23,7 +24,7 @@ export const AttendanceActivityCard = ({
     total_agents === 0 ? 0 : no_of_present_agents / total_agents;
 
   const goToSummary = () => {
-    router.push("/Screens/AttendanceSummaryScreen"); // adjust path if needed
+    router.push("/Screens/AttendanceSummaryScreen");
   };
 
   return (
@@ -69,9 +70,6 @@ export const AttendanceActivityCard = ({
       {/* Ring */}
       <View style={styles.ringWrapper}>
         <ActivityRing progress={progress} />
-        <Text style={styles.percent}>
-          {Math.round(progress * 100)}%
-        </Text>
       </View>
     </View>
     </Pressable>
@@ -82,7 +80,8 @@ export const AttendanceActivityCard = ({
 const createStyles = (t: Theme) =>
   StyleSheet.create({
     card: {
-      backgroundColor: t.colors.surface,
+      // backgroundColor: t.colors.surface,
+      backgroundColor : "#0f172a",
       borderRadius: t.radius.xl,
       padding: t.spacing.lg,
       flexDirection: "row",
@@ -98,7 +97,7 @@ const createStyles = (t: Theme) =>
     headerRow: {
       flexDirection: "row",
       alignItems: "center",
-      justifyContent: "space-between", // 🔥 key
+      justifyContent: "space-between", 
     },
 
     title: {

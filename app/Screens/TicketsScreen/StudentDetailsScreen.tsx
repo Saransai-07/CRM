@@ -49,7 +49,7 @@ const StudentDetailsScreen = () => {
   const [error, setError] = useState<string | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
 
-  const [relation, setRelation] = useState<number | null>(null);
+  const [relation, setRelation] = useState<number | null | string>(null);
   const [customName, setCustomName] = useState("");
   const [customephoneNumber, setCustomPhoneNumber] = useState("");
   const [relationOptions, setRelationOptions] = useState<Option[]>([])

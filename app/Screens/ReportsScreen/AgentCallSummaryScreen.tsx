@@ -1,33 +1,32 @@
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native'
-import React, { useEffect, useState } from 'react'
-import { router } from 'expo-router';
-import { getToken } from '@/src/lib/secureStorage';
-import { Theme, useThemedStyles } from '@/src/theme';
-import { useAuth } from '@/src/context/AuthContext';
-import { AgentCallSummaryInterface } from '@/src/Interface/InterfaceData';
-import { Pagination } from '@/src/components/Pagination';
-import HeaderSearch from '@/src/components/ListHeader';
 import AgentCallSummary from '@/src/components/Reports/AgentCallSummary';
 import DateRangeModal from '@/src/components/DoubleDatePicker';
+import HeaderSearch from '@/src/components/ListHeader';
+import { useAuth } from '@/src/context/AuthContext';
+import { AgentCallSummaryInterface } from '@/src/Interface/InterfaceData';
+import { getToken } from '@/src/lib/secureStorage';
+import { Theme, useThemedStyles } from '@/src/theme';
+import { router } from 'expo-router';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, ScrollView } from 'react-native';
 
 const AgentCallSummaryScreen = () => {
 
   const { logout, authState, BASE_URL } = useAuth();
   const [data, setData] = useState<AgentCallSummaryInterface[]>([]);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [loading, setLoading] = useState(false);
-  const [search, setSearch] = useState<string>('')
+  const [initialLoading, setInitialLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [search, setSearch] = useState<string>('');
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const styles = useThemedStyles(createStyles);
+  const [totalCount, setTotalCount] = useState<number>(0)
 
   const [dateModalVisible, setDateModalVisible] = useState(false);
   const [startDate, setStartDate] = useState<string | null>(null);
   const [endDate, setEndDate] = useState<string | null>(null);
 
-
-
+  const pageRef = useRef(1);
+  const totalPagesRef = useRef(1);
 
   const options = React.useMemo(() => ({
     method: "GET",
@@ -50,52 +49,67 @@ const AgentCallSummaryScreen = () => {
     loadToken();
   }, []);
 
+  // Fetch first page when accessToken, search, or date range changes
   useEffect(() => {
     if (!accessToken) return;
-    const loadSales = async () => {
+    const loadInitial = async () => {
       try {
-        setLoading(true);
-        await fetchData(page, search)
+        setInitialLoading(true);
+        setData([]);
+        pageRef.current = 1;
+        await fetchData(1, search, true);
       } catch (err) {
         console.error(err);
       } finally {
-        setLoading(false);
+        setInitialLoading(false);
       }
     };
-    loadSales();
-  }, [accessToken, page, search, startDate, endDate]);
+    loadInitial();
+  }, [accessToken, search, startDate, endDate]);
+
+  const fetchData = async (pageNumber: number, searchText: string, isFirstPage: boolean) => {
+    try {
+      const res = await fetch(
+        `${BASE_URL}/call/agent_wise_wizklub_call_analytics/?page=${pageNumber}&search=${searchText}&start_date=${startDate ?? ""}&end_date=${endDate ?? ""}`,
+        options
+      );
+      const json = await res.json();
+
+      if (isFirstPage) {
+        setData(json.results);
+        setTotalCount(json.total_count || 0);
+      } else {
+        setData(prev => [...prev, ...json.results]);
+      }
+      totalPagesRef.current = json.total_pages;
+      pageRef.current = json.current_page_number;
+    } catch (error) {
+      console.log("Error:", error);
+    }
+  };
 
   const onRefresh = async () => {
     setRefreshing(true);
-    setPage(1)
-    await fetchData(1, search);
+    pageRef.current = 1;
+    setData([]);
+    await fetchData(1, search, true);
     setRefreshing(false);
   };
 
-  const fetchData = async (pageNumber: number, search: string) => {
+  const handleLoadMore = useCallback(async () => {
+    if (loadingMore || pageRef.current >= totalPagesRef.current) return;
 
-    try {
-      const res = await fetch(`${BASE_URL}/call/agent_wise_wizklub_call_analytics/?page=${pageNumber}&search=${search}&start_date=${startDate ?? ""}&end_date=${endDate ?? ""}`, options);
-      const json = await res.json();
-      setData(json.results);
-      setTotalPages(json.total_pages);
-      setPage(json.current_page_number);
-    } catch (error) {
-      console.log("Error:", error);
-    } finally {
-    }
-  };
+    const nextPage = pageRef.current + 1;
+    setLoadingMore(true);
+    await fetchData(nextPage, search, false);
+    setLoadingMore(false);
+  }, [loadingMore, search, options]);
 
-  const handleNext = () => {
-    if (page < totalPages) {
-      setPage(prev => prev + 1)
-    }
-  };
-
-  const handlePrev = () => {
-    if (page > 1) {
-      setPage(prev => prev - 1)
-    }
+  const renderFooter = () => {
+    if (!loadingMore) return null;
+    return (
+      <ActivityIndicator style={{ marginVertical: 16 }} size="small" />
+    );
   };
 
   return (
@@ -104,53 +118,63 @@ const AgentCallSummaryScreen = () => {
       <HeaderSearch
         title="Agents summary"
         placeholder="Search..."
-        onSearchChange={(searchText) => { setSearch(searchText), setPage(1) }}
+        onSearchChange={(searchText) => { setSearch(searchText) }}
       />
 
       <View style={styles.dateContainer}>
 
+        {/* Date Picker */}
         <TouchableOpacity
           style={styles.dateButton}
           onPress={() => setDateModalVisible(true)}
         >
-          <Text style={styles.dateText}>
-            {startDate && endDate
-              ? `📅  ${startDate} → ${endDate}`
-              : "📅  Select Date Range"}
-          </Text>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ alignItems: "center" }}
+          >
+
+            <Text style={styles.dateText}>
+              {startDate && endDate
+                ? `📅 ${startDate} → ${endDate}`
+                : "📅 Select Date Range"}
+            </Text>
+          </ScrollView>
         </TouchableOpacity>
+
+        {/* Total Count */}
+        <View style={styles.countContainer}>
+          <Text style={styles.countText}>
+            {totalCount} Records
+          </Text>
+        </View>
+
       </View>
 
-
-      {loading && !refreshing ? (
+      {initialLoading && !refreshing ? (
         <ActivityIndicator size='large' />
       ) : (
-        <>
-          <FlatList
-            data={data}
-            keyExtractor={(item, index) => `${item.id}-${index}`}
-            renderItem={({ item }) => (
-              <AgentCallSummary item={item} startDate={startDate} endDate={endDate} />
-            )}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: 20 }}
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            ListEmptyComponent={() => (
-              <Text style={styles.emptycomponent}>❎ No agents found</Text>
-            )}
-            initialNumToRender={10}
-            maxToRenderPerBatch={10}
-            windowSize={5}
-            removeClippedSubviews={true}
-          />
-          <Pagination
-            currentPage={page}
-            totalPages={totalPages}
-            onNext={handleNext}
-            onPrev={handlePrev}
-          />
-        </>
+        <FlatList
+          data={data}
+          keyExtractor={(item, index) => `${item.id}-${index}`}
+          renderItem={({ item }) => (
+            <AgentCallSummary item={item} startDate={startDate} endDate={endDate} />
+          )}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 20 }}
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          onEndReached={handleLoadMore}
+          onEndReachedThreshold={0.5}
+          ListFooterComponent={renderFooter}
+          ListEmptyComponent={() => (
+            <Text style={styles.emptycomponent}>❎ No agents found</Text>
+          )}
+          initialNumToRender={10}
+          maxToRenderPerBatch={10}
+          windowSize={5}
+          removeClippedSubviews={true}
+        />
       )}
       <DateRangeModal
         visible={dateModalVisible}
@@ -158,7 +182,6 @@ const AgentCallSummaryScreen = () => {
         onApply={(start, end) => {
           setStartDate(start);
           setEndDate(end);
-          setPage(1);
         }}
       />
     </View>
@@ -213,6 +236,34 @@ const createStyles = (t: Theme) =>
       color: "#fff",
       fontWeight: "500",
       textAlign: "center"
+    },
+    countContainer: {
+      justifyContent: "center",
+      paddingHorizontal: 10,
+      backgroundColor: "#111827",
+      borderRadius: 10,
+      borderWidth: 1,
+      borderColor: "#374151",
+    },
+
+    countText: {
+      color: "#10b981",
+      fontWeight: "700",
+    },
+
+    filterButton: {
+      justifyContent: "center",
+      alignItems: "center",
+      paddingHorizontal: 12,
+      backgroundColor: "#1f2937",
+      borderRadius: 10,
+      borderWidth: 1,
+      borderColor: "#374151",
+    },
+
+    filterText: {
+      color: "#fff",
+      fontSize: 16,
     },
 
   });

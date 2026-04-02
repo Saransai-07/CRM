@@ -32,18 +32,17 @@ const AddTicketScreen = () => {
   const [ticketNumber, setTicketNumber] = useState<string | null>(null);
 
   const [categoryData, setCategoryData] = useState<Option[]>([]);
-  const [category, setCategory] = useState<number | null>(null);
+  const [category, setCategory] = useState<number | null |string>(null);
 
   const [priorityData, setPriorityData] = useState<Option[]>([]);
-  const [priority, setPriority] = useState<number | null>(null);
+  const [priority, setPriority] = useState<number | null | string>(null);
 
   const [subCategoryData, setSubCategoryData] = useState<Option[]>([]);
-  const [subcategory, setSubcategory] = useState<number | null>(null);
+  const [subcategory, setSubcategory] = useState<number | null | string>(null);
 
   const [description, setDescription] = useState("");
   const [callBacktime, setCallBackTime] = useState("");
   const [showCallBackFielsd, setShowCallBackField] = useState(false);
-  const [showPicker, setShowPicker] = useState(false)
 
   const [showPickerModal, setShowPickerModal] = useState(false);
   const [pickerMode, setPickerMode] = useState<"date" | "time">("date");
@@ -78,7 +77,6 @@ const AddTicketScreen = () => {
 
   useEffect(() => {
     if (!accessToken) return;
-
     fetchTicket();
     fetchCategory();
     fetchPriority();

@@ -3,12 +3,14 @@ import { View, Text, StyleSheet, TouchableOpacity, Modal, ScrollView, TouchableW
 import { useState } from "react";
 import { AudioBar } from "../AudioBar";
 import { TicketLogInterface } from "@/src/Interface/InterfaceData";
+import { useAudioPlayerContext } from "@/src/context/AudioPlayerContext";
 
 
 export const TicketLogItem = ({ item }: { item: TicketLogInterface }) => {
   const [visible, setVisible] = useState(false);
-
+  const { pause } = useAudioPlayerContext();
   const formattedDate = new Date(item.created_at).toLocaleString();
+
 
 
   return (
@@ -49,7 +51,11 @@ export const TicketLogItem = ({ item }: { item: TicketLogInterface }) => {
         <View style={styles.modalOverlay}>
 
           {/* CLICK OUTSIDE TO CLOSE */}
-          <TouchableWithoutFeedback onPress={() => setVisible(false)}>
+          <TouchableWithoutFeedback onPress={() => {
+            pause();
+            setVisible(false)
+          }}
+          >
             <View style={styles.overlayTop} />
           </TouchableWithoutFeedback>
 
@@ -154,7 +160,10 @@ export const TicketLogItem = ({ item }: { item: TicketLogInterface }) => {
             {/* FOOTER */}
             <TouchableOpacity
               style={styles.closeBtn}
-              onPress={() => setVisible(false)}
+              onPress={() => {
+                pause();
+                setVisible(false)
+              }}
             >
               <Text style={styles.closeText}>Close</Text>
             </TouchableOpacity>
@@ -168,7 +177,7 @@ export const TicketLogItem = ({ item }: { item: TicketLogInterface }) => {
 
 export const PreviousYearTicketLogItem = ({ item }: any) => {
   const [visible, setVisible] = useState(false);
-
+  const { pause } = useAudioPlayerContext();
   const formattedDate = new Date(item.created_at).toLocaleString();
 
 
@@ -210,7 +219,10 @@ export const PreviousYearTicketLogItem = ({ item }: any) => {
         <View style={styles.modalOverlay}>
 
           {/* CLICK OUTSIDE TO CLOSE */}
-          <TouchableWithoutFeedback onPress={() => setVisible(false)}>
+          <TouchableWithoutFeedback onPress={() => {
+            pause();
+            setVisible(false)
+          }}>
             <View style={styles.overlayTop} />
           </TouchableWithoutFeedback>
 
@@ -315,7 +327,10 @@ export const PreviousYearTicketLogItem = ({ item }: any) => {
             {/* FOOTER */}
             <TouchableOpacity
               style={styles.closeBtn}
-              onPress={() => setVisible(false)}
+              onPress={() => {
+                pause();
+                setVisible(false)
+              }}
             >
               <Text style={styles.closeText}>Close</Text>
             </TouchableOpacity>

@@ -39,18 +39,18 @@ export interface TopPerformer {
 }
 
 export interface UserProfileResponse {
-    message: string;
-    data: UserProfileData;
+  message: string;
+  data: UserProfileData;
 }
 
 export interface UserProfileData {
-    user_profile_id: number;
-    user_id: number;
-    photo: string ;
-    bio: string;
-    phone_number: string;
-    username: string;
-    is_idealtime : boolean;
+  user_profile_id: number;
+  user_id: number;
+  photo: string;
+  bio: string;
+  phone_number: string;
+  username: string;
+  is_idealtime: boolean;
 }
 
 export interface CommomApiInterface {
@@ -60,6 +60,16 @@ export interface CommomApiInterface {
   next_page: string | null;
   previous_page: string | null;
   results: any[];
+}
+
+export interface PerformanceInterface {
+  date: string;
+  achieved: number;
+  target: number;
+  renewals: number;
+  new_sales : number;
+  is_admin : boolean;
+
 }
 
 export interface AgentReport {
@@ -99,6 +109,21 @@ export interface Agent {
   cvr_count: number;
   cvr_percentage: number;
   cvr: string;
+}
+
+interface Member {
+  id: number;
+  username: string;
+  no_of_sales: number;
+}
+
+export interface SalesRankGroup {
+  data: {
+    sales_rank_group: number;
+    sales_rank_group_name: string;
+    total_sales: number;
+    members: Member[];
+  };
 }
 
 export interface AgentInputsInterface {
@@ -351,7 +376,7 @@ export interface Student {
   is_wizklub_paid: boolean;
   siblings: Sibling[];
 }
- 
+
 export interface Guardian {
   id: number;
   student: number;
@@ -361,7 +386,7 @@ export interface Guardian {
   phone_number: string;
 }
 
-export interface TicketInterface  {
+export interface TicketInterface {
   ticket_id: number;
   ticket_number: string;
   student: number;
@@ -395,7 +420,7 @@ export interface TicketLogInterface {
   correlations: any[]; // Array of correlation objects, empty array if none
   call_back_time: string;
   subcategory_name: string;
-  category_name : string;
-  priority_name : string;
-  description : string
+  category_name: string;
+  priority_name: string;
+  description: string
 }

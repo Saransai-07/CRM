@@ -1,22 +1,23 @@
-import { View, Text, useWindowDimensions, Linking, TouchableOpacity, StyleSheet, Pressable, Alert, Modal, TextInput } from 'react-native'
-import React, { useEffect, useState } from 'react'
-import { router, useLocalSearchParams } from 'expo-router'
+import { router, useLocalSearchParams } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import { Alert, Linking, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { SceneMap, TabView } from 'react-native-tab-view';
 
-import StudentDetailsScreen from '../Screens/TicketsScreen/StudentDetailsScreen';
-import AddTicketScreen from '../Screens/TicketsScreen/AddTicketScreen';
-import TicketLogScreen from '../Screens/TicketsScreen/TicketLogScreen';
-import CallLogScreen from '../Screens/TicketsScreen/CallLogScreen';
 import SegmentControl from '@/src/components/SegmentTabs';
-import { Ionicons } from '@expo/vector-icons';
 import { Theme, useThemedStyles } from '@/src/theme';
+import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import AddTicketScreen from '../Screens/TicketsScreen/AddTicketScreen';
+import CallLogScreen from '../Screens/TicketsScreen/CallLogScreen';
+import StudentDetailsScreen from '../Screens/TicketsScreen/StudentDetailsScreen';
+import TicketLogScreen from '../Screens/TicketsScreen/TicketLogScreen';
 // import useCall from './CallingFunctions';
+import { Option } from '@/src/components/DropDown';
 import { useAuth } from '@/src/context/AuthContext';
 import { getToken } from '@/src/lib/secureStorage';
-import Dropdown, { Option } from '@/src/components/DropDown';
 import CallBottomSheet from './CallBottomSheet';
 import useCall from './hooks/UseCall';
+import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 
 const StudentInstance = () => {
   const { id, scsnumber } = useLocalSearchParams();
@@ -38,27 +39,18 @@ const StudentInstance = () => {
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [sheetVisible, setSheetVisible] = useState(false);
 
-  const [routes] = useState([
-    { key: "studentList", title: " Student" },
-    { key: "addTicket", title: "Ticket" },
-    { key: "ticketlog", title: "Ticket Log" },
-    { key: "callLog", title: " Call Log" },
-  ]);
-
-  const renderScene = SceneMap({
-    studentList: StudentDetailsScreen,
-    addTicket: AddTicketScreen,
-    ticketlog: TicketLogScreen,
-    callLog: CallLogScreen,
-  });
+  const Tab = createMaterialTopTabNavigator();
 
   const openLink = async (url: string) => {
+    if (!mobileNumber) {
+      Alert.alert("No number available");
+      return;
+    }
     const supported = await Linking.canOpenURL(url);
     if (supported) {
       await Linking.openURL(url);
     }
   };
-
 
   useEffect(() => {
     const loadToken = async () => {
@@ -95,14 +87,13 @@ const StudentInstance = () => {
       const json = await response.json();
 
       if (!response.ok) {
-        console.log("Mobile number Error:", json);
         setMobileNumber('')
-        throw new Error("API failed");
+        Alert.alert("No number available");
+        return;
       }
       setMobileNumber(json.mobile_number)
     } catch (error) {
       console.log("Fetch Mobile Number Error:", error);
-      Alert.alert("Error", "Failed to load Mobile Number");
     }
   };
 
@@ -120,9 +111,7 @@ const StudentInstance = () => {
           },
         }
       );
-
       const json = await response.json();
-
       if (!response.ok) {
         console.log("Mobile number Error:", json);
         setStudentContactNumberData([])
@@ -141,23 +130,53 @@ const StudentInstance = () => {
   };
 
 
-
-
   return (
     <View style={{ flex: 1, backgroundColor: "#1C1C1E", paddingBottom: 60 + insets.bottom }}>
-      <SegmentControl
-        routes={routes}
-        index={index}
-        setIndex={setIndex}
-      />
-      <TabView
-        navigationState={{ index, routes }}
-        renderScene={renderScene}
-        onIndexChange={setIndex}
-        initialLayout={{ width: layout.width }}
-        swipeEnabled
-        renderTabBar={() => null}
-      />
+      <Tab.Navigator
+        screenOptions={{
+          lazy: true,
+          lazyPreloadDistance: 1,
+          swipeEnabled: true,
+
+          tabBarActiveTintColor: "#000",
+          tabBarInactiveTintColor: "#fff",
+          tabBarStyle: {
+            backgroundColor: "#2C2C2E",
+            margin: 6,
+            borderRadius: 12,
+          },
+          tabBarIndicatorStyle: {
+            backgroundColor: "#00ff6a",
+            height: "85%",
+            margin: 4,
+            borderRadius: 10,
+          },
+        }}
+      >
+        <Tab.Screen
+          name="studentList"
+          component={StudentDetailsScreen}
+          options={{ title: "Student" }}
+        />
+
+        <Tab.Screen
+          name="addTicket"
+          component={AddTicketScreen}
+          options={{ title: "Ticket" }}
+        />
+
+        <Tab.Screen
+          name="ticketlog"
+          component={TicketLogScreen}
+          options={{ title: "Ticket Log" }}
+        />
+
+        <Tab.Screen
+          name="callLog"
+          component={CallLogScreen}
+          options={{ title: "Call Log" }}
+        />
+      </Tab.Navigator>
       <SafeAreaView edges={["bottom"]} style={styles.safeArea}>
         <View style={[styles.glassBar, styles.wrapper]}>
 
@@ -173,6 +192,7 @@ const StudentInstance = () => {
           <Pressable
             style={({ pressed }) => [styles.actionBtn, pressed && styles.pressed]}
             onPress={() => openLink(`https://wa.me/${mobileNumber}`)}
+
           >
             <Ionicons name="logo-whatsapp" size={20} color="#25D366" />
             <Text style={styles.label}>WhatsApp</Text>
@@ -192,7 +212,7 @@ const StudentInstance = () => {
       <CallBottomSheet
         visible={sheetVisible}
         options={studentContactNumbersData}
-        onClose={() => {setSheetVisible(false)}}
+        onClose={() => { setSheetVisible(false) }}
         onCall={(selectedId: number | null) => {
           initiateCall(String(scsnumber), selectedId ?? undefined);
         }}
@@ -210,20 +230,20 @@ const createStyles = (t: Theme) =>
       position: "absolute",
       bottom: -10,
       width: "100%",
-      alignItems : "center",
-      
+      alignItems: "center",
+
     },
-    
+
     wrapper: {
-      width : "95%",
+      width: "95%",
       paddingBottom: 6,
     },
-    
+
     glassBar: {
       flexDirection: "row",
       justifyContent: "space-around",
       alignItems: "center",
-      
+
       borderRadius: 28,
       paddingVertical: 14,
 
